@@ -22,9 +22,20 @@
     align-items: center;
     padding-right: 1vw;
 }
-#icon {
+.icon-cont {
+    display: grid;
+    grid-template: 1fr / 1fr 1fr;
+    gap: 30px;
+}
+.icon {
     max-width: 30px;
     max-height: 30px;
+}
+#bell{
+    display:block;
+}
+#noti {
+    display:none;
 }
 
 #sidebar {
