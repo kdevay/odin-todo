@@ -67,7 +67,7 @@ strong {
 code,
 kbd,
 samp {
-f   ont-family: monospace, monospace; /* Correct font size inheritance and scaling in all browsers. */
+    font-family: monospace, monospace; /* Correct font size inheritance and scaling in all browsers. */
     font-size: 1em; /* Correct odd `em` font sizing in all browsers. */
 }
 
