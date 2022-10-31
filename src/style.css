@@ -22,7 +22,7 @@
     align-items: center;
     padding-right: 1vw;
 }
-.icon-cont {
+#icon-cont {
     display: grid;
     grid-template: 1fr / 1fr 1fr;
     gap: 30px;
