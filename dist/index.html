@@ -11,21 +11,40 @@
 <script defer src="bundle.js"></script></head>
 <body>
     <div id="main">
+        <div id="modalShadow"></div>
         <div id="modal"> 
-            <!-- popup for notifications -->
-            <!-- popup for adding/editing tiles/projects -->
+            <!-- new project -->
+            <div id="newProjForm">
+                <h2>Create New Project</h2>
+                <label for="projName">Project Name: </label>
+                <input type="text" id="projName">
+                <button type="submit" id="addProject">Add Project</button>
+            </div>
+            <!-- new list -->
+            <div id="newlistForm">
+                <h2>Create New List</h2>
+                <label for="allProjects">Choose a project:</label>
+                <select name="project" id="allProjects">
+                    <option value="misc">Miscellaneous</option> 
+                </select>
+                <label for="listName">List Name: </label>
+                <input type="text" id="listName">
+                <label for="listItem1">1. </label>
+                <input type="text" id="listItem1">
+                <button id="addItems" data-id="1"> + </button>
+                <button type="submit" id="addList">Add List</button>
+            </div>
             <!-- are you sure message for deletion (?) -->
         </div>
         <div id="top"> 
-            <h2>Project Name / List Title</h2>
+            <h2>single list view</h2>
             <div id="icon-cont"></div>
 
             <!-- TO DO: -->
             <!-- current work (viewing/editing todo list/project folder) -->
-            <!-- notification icon: show notification for looming deadline -->
         </div>
         <div id="sidebar"> 
-            <h1>SIDEBAR</h1>
+            <h1>To Do</h1>
 
             <div id="files">
                 <h2>Projects</h2>
@@ -40,8 +59,39 @@
 
         </div>
         <div id="content">
-            <div class="tile">TILE</div>
-            <!-- project tiles OR todo list tiles -->
+            <div id="addButtons">
+                <button id="displayListForm">+List</button>
+                <button id="displayProjectForm">+Project</button>
+            </div>
+
+            <!-- <div class="tile">
+                <div class="tileTop">
+                    <div class="headingContainer">
+                        <h2 class="listTitle">Morning Routine</h2>
+                        <h5 class="deadline">Due 1/1/23</h5>
+                    </div>
+                </div>
+                <div class="checkContainer">
+                    <input class="checkbox" type="checkbox" name="listTitle1">
+                    <input class="checkbox" type="checkbox" name="listTitle2">
+                    <input class="checkbox" type="checkbox" name="listTitle3">
+                    <input class="checkbox" type="checkbox" name="listTitle4">
+                    <input class="checkbox" type="checkbox" name="listTitle5">
+                </div>
+                <div class="listItems">
+                    <p class="listItem" id="listTitle1">Wake up at 5am</p>
+                    <p class="listItem" id="listTitle2">Brush teeth</p>
+                    <p class="listItem" id="listTitle3">Wash face + sunscreen</p>
+                    <p class="listItem" id="listTitle4">Refill water bottle</p>
+                    <p class="listItem" id="listTitle5">Go for 30 min walk</p>
+                </div>
+            </div> -->
+            <div class="projTile" data-id="1">
+                    <div class="headingContainer">
+                        <h2 class="listTitle">Morning Routine</h2>
+                        <h5 class="deadline">Due 1/1/23</h5>
+                    </div>
+            </div>
         </div>
     </div>
 </body>
