@@ -3,50 +3,6 @@ import './normalize.css';
 import Add from './add.png';
 import Dots from './dots.png';
 
-// functions ////////////////////////////////////////////////////////
-// function applyEdit(e) {
-//     // update list item
-// }
-// function addNew(e) {
-//     // Add form data to memory depending on button id
-//      const buttonId = e.target.getAttribute('id');
-//     // if (click addProject)
-//         // add to projects object
-//     // else
-//         // add list to appropriate project object
-//         // add to list object
-// }
-// function addItem(e) {
-//     // get data id
-//     // update value of button data id
-//     // add new form area for another item
-//     // use data id to set id of new form area
-// }
-// Display appropriate form based on button id
-function displayForm(e) {
-    const buttonId = e.target.getAttribute('id');
-    if (buttonId === page.plus) {
-        // display dropdown (new project, new list)
-        console.log("hootie");
-        page.addButtonsCont.style.display = 'flex';
-        return;
-    } 
-    page.modalShadow.style.display = 'flex';
-    page.modal.style.display = 'flex';
-    if (buttonId === page.list.displayForm) {
-        // add all project names into dropdown menu
-        // <option value="misc">Miscellaneous</option> 
-        // display new list form
-        // page.listForm.style.display = 'block';
-    } else if (buttonId === page.project.displayForm) {
-        // display new project form
-        page.project.formContainer.style.display = 'block';
-    }
-    // else if (click edit)
-        // load list tile into form areas
-        // display edit form
-}
-
 // Add '+' icon
 const addIcon = document.createElement('img'); // Add new list/project
 addIcon.setAttribute('class', 'icon');
@@ -54,28 +10,130 @@ addIcon.setAttribute('id', 'plus');
 addIcon.setAttribute('src', Add);
 document.getElementById('icon-cont').appendChild(addIcon);
 
-
 // All buttons and containers in page
-const page = {
+const page = { 
+    listCounter: 1;
+    listItemsOL: document.getElementById('formListItems'),
+    dropdownCont: document.getElementById('addButtons'),
     modal: document.getElementById('modal'),
     modalShadow: document.getElementById('modalShadow'),
-    plus: addIcon,
-    addButtonsCont: document.getElementById('addButtons'),
-    project: {
-        displayForm: document.getElementById('displayProjectForm'),
-        formContainer: document.getElementById('newProjForm')
+    projectForm: document.getElementById('newProjForm'),
+    listForm: document.getElementById('newListForm'),
+    lFormAddP: document.getElementById('lFormProjName');
+    buttons: { 
+        add: addIcon,
+        displayPForm: document.getElementById('displayProjectForm'),
+        displayLForm: document.getElementById('displayListForm'),
+        addItems: document.getElementById('addItems'),
+        addList: document.getElementById('addList'),
+        addProject: document.getElementById('addProject'),
+        addLP: document.getElementById('listToNewProject')
+    }, 
+    show(element) {
+        element.style.display = 'flex';
     },
-    list: {
-        displayForm: document.getElementById('displayListForm'),
-        formContainer: document.getElementById('newListForm')
+    hide(element) {
+        element.style.display =  'none';
+    },
+    hideAll() {
+        this.hide(this.modal);
+        this.hide(this.modalShadow);
+        this.hide(this.dropdownCont);
+        this.hide(this.projectForm);
+        this.hide(this.listForm);
     }
-    
 };
 
+// functions ////////////////////////////////////////////////////////
+function displayForm(e) { // Display appropriate form based on button id
+    const buttonId = e.target.getAttribute('id');
+
+    if (buttonId === page.modalShadow.getAttribute('id')){
+        // Close all forms on shadow click
+        page.hideAll();
+        return;
+    }
+
+    page.show(page.modalShadow); // Display modal shadow
+
+    if (buttonId === page.buttons.add.getAttribute('id')) {
+        // Display dropdown buttons
+        page.show(page.dropdownCont);
+        return;
+    }
+
+    // Display modal & hide dropdown buttons
+    page.show(page.modal);
+    page.hide(page.dropdownCont);
+    
+    if (buttonId === page.buttons.displayLForm.getAttribute('id')) {
+        // add all project names into dropdown menu: <option value="misc">Miscellaneous</option> 
+        page.show(page.listForm); // Display List form
+
+    } else if (buttonId === page.buttons.displayPForm.getAttribute('id')) { 
+        page.show(page.projectForm); // Display Project form
+    }
+    // else if (click edit)
+        // load list tile into form areas
+        // display edit form
+}
+
 // Events ////////////////////////////////////////////////////////
-page.plus.addEventListener('click', displayForm);
-page.project.displayForm.addEventListener('click', displayForm);
-page.list.displayForm.addEventListener('click', displayForm);
+page.modalShadow.addEventListener('click', displayForm);
+page.buttons.add.addEventListener('click', displayForm);
+page.buttons.displayPForm.addEventListener('click', displayForm);
+page.buttons.displayLForm.addEventListener('click', displayForm);
+// page.buttons.addItems.addEventListener('click', addNew);
+// page.buttons.addList.addEventListener('click', addNew);
+// page.buttons.addProject.addEventListener('click', addNew);
+// page.buttons.addLP.addEventListener('click', addNew);
+
+// Set Defaults
+page.hideAll();
+
+
+
+// function applyEdit(e) {
+//     // update list item
+// }
+// Add form data to memory depending on button id
+function addNew(e) {
+    // Prevent form submission
+    e.preventDefault();
+
+    const buttonId = e.target.getAttribute('id');
+    //  Add List item
+    if (buttonId === page.buttons.addItems.getAttribute('id')){
+        // increment list counter
+        page.listCounter++;
+        // Add li and nested input to dom
+        let tempLI = document.createElement('li');
+        let tempInput = document.createElement('input');
+        tempInput.setAttribute('class', 'formItem')
+        tempInput.setAttribute('type', 'text')
+        tempInput.setAttribute('id', 'listItem' + page.listCounter)
+        tempLI.appendChild(tempInput);
+        page.listItemsOL.appendChild(tempLI);
+    }
+    
+    // Add new project in new list form
+    // page.buttons.addLP.getAttribute('id');
+    // page.show(page.lFormAddP);
+    
+    // Add Project 
+    // page.buttons.addProject.getAttribute('id');
+    
+    // Add list
+    // page.buttons.addList.getAttribute('id');
+    // if project input field display==='block'
+    //else
+}
+// function addItem(e) {
+//     // get data id
+//     // update value of button data id
+//     // add new form area for another item
+//     // use data id to set id of new form area
+// }
 
 // Add '...' icon to list tiles
 // const tileTop = document.getElementById('tileTop'); // Change this to be an array of all lists

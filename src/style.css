@@ -1,6 +1,12 @@
 *{
     color: white;
 }
+ol {
+    padding-inline-start: 17px;
+}
+select{
+    background-color: black;
+}
 
 #main {
     width: 100vw;
@@ -20,18 +26,18 @@
     height: 100vh; /* Full height */
     overflow: hidden; /* Enable scroll if needed */
     background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(253, 253, 253, 0.6); /* Black w/ opacity */
+    background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity */
     /* display: flex; */
     flex-direction: column;
     align-content: center;
     align-items: center;
 }
 #modal {
-    background-color:rgb(141, 131, 166);
-    padding: 10px;
+    background-color: rgb(39, 46, 46);
+    padding: 20px;
     min-height: 200px;
-    width: clamp(150px, 225px, 300px);
-    margin: 6vh;
+    width: 50vw;
+    margin: 25vh 20vw 0 25vw;
     border-radius: 8px;
     box-shadow: 10px 9px 14px 7px rgb(8 8 8);
     display: none;
@@ -43,6 +49,46 @@
     align-items: center;
     justify-content: center;
 }
+.form {
+    flex-direction: column;
+    width: 90%;
+    gap: 20px;
+}
+.formItem{
+    margin: 0 0 5px 0;
+}
+#lFormProjName {
+    display: none;
+}
+#addItems {
+    padding: 5px;
+    width: 29px;
+    background-color: white;
+    color: black;
+    border: none;
+}
+#addItems:hover {
+    padding: 4px;
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+    cursor: pointer;
+}
+.fsubmit{
+    border: none;
+    background-color: white;
+    color: black;
+    min-height: 30px;
+    width: 22%;
+    margin: 0 39% 0 39%;
+}
+.fsubmit:hover {
+    cursor: pointer;
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+}
+
 
 #top {
     grid-area: 1 / 2 / 2 / 3;
@@ -50,7 +96,7 @@
     background-color: rgb(18, 19, 19);
     justify-content: space-between;
     align-items: center;
-    padding-right: 1vw;
+    padding-right: 30px;
 }
 #icon-cont {
     width: 30px;
@@ -68,21 +114,19 @@
     display: none;
     /* display: flex; */
     position: fixed; /* Stay in place */
-    z-index: 2; /* Sit on top */
+    z-index: 3; /* Sit on top */
     flex-direction: column;
-    width: 50px;
+    top: 70px;
+    right: 10px;
+    width: 70px;
     height: 60px;
 }
-#displayListForm,
-#displayProjectForm {
-    display: none;
-    width: 50px;
+.dispFormButton{
     height: 30px;
     border: none;
-    background-color: rgb(18, 19, 19);
+    background-color: rgb(32, 34, 34);
 }
-#displayListForm,
-#displayProjectForm:hover {
+.dispFormButton:hover {
     cursor: pointer;
     color: black;
     background-color: rgb(199, 208, 208);

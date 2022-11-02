@@ -14,25 +14,35 @@
         <div id="modalShadow"></div>
         <div id="modal"> 
             <!-- new project -->
-            <div id="newProjForm">
-                <h2>Create New Project</h2>
-                <label for="projName">Project Name: </label>
-                <input type="text" id="projName">
-                <button type="submit" id="addProject">Add Project</button>
+            <div class="form" id="newProjForm">
+                <h2 class="listTitle">Create New Project</h2>
+                <div>
+                    <label for="projName">Project Name: </label>
+                    <input type="text" id="projName">
+                </div>
+                <br>
+                <button class="fsubmit" type="submit" id="addProject">Add Project</button>
             </div>
+            
             <!-- new list -->
-            <div id="newlistForm">
-                <h2>Create New List</h2>
-                <label for="allProjects">Choose a project:</label>
-                <select name="project" id="allProjects">
-                    <option value="misc">Miscellaneous</option> 
-                </select>
-                <label for="listName">List Name: </label>
-                <input type="text" id="listName">
-                <label for="listItem1">1. </label>
-                <input type="text" id="listItem1">
+            <div class="form" id="newListForm">
+                <h2 class="listTitle">Create New List</h2>
+                <div>
+                    <select name="project" id="allProjects">
+                        <option value="" disabled selected>Choose a project:</option>
+                        <option value="misc">Miscellaneous</option> 
+                        <option id="listToNewProject" value="pl">New project</option>
+                    </select>
+                    <input type="text" id="lFormProjName" placeholder="Project Name">
+                </div>
+                <div>
+                    <input type="text" id="listName" placeholder="List Title">
+                </div>
+                <ol id="formListItems">
+                    <li><input class="formItem" type="text" id="listItem1"></li>
+                </ol>
                 <button id="addItems" data-id="1"> + </button>
-                <button type="submit" id="addList">Add List</button>
+                <button class="fsubmit" type="submit" id="addList">Add List</button>
             </div>
             <!-- are you sure message for deletion (?) -->
         </div>
@@ -49,19 +59,25 @@
             <div id="files">
                 <h2>Projects</h2>
                 <!-- expanding file tree -->
-                <h3>Project Name</h3>
-                <p>List Title</p>
-                <h3>Project Name</h3>
-                <p>List Title</p>
-                <h3>Project Name</h3>
-                <p>List Title</p>
+                <div>
+                    <h3>Project Name</h3>
+                    <p>List Title</p>
+                </div>
+                <div>
+                    <h3>Project Name</h3>
+                    <p>List Title</p>
+                </div>
+                <div>
+                    <h3>Project Name</h3>
+                    <p>List Title</p>
+                </div>
             </div>
 
         </div>
         <div id="content">
             <div id="addButtons">
-                <button id="displayListForm">+List</button>
-                <button id="displayProjectForm">+Project</button>
+                <button class="dispFormButton" id="displayListForm">+List</button>
+                <button class="dispFormButton" id="displayProjectForm">+Project</button>
             </div>
 
             <!-- <div class="tile">
