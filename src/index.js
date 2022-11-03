@@ -28,6 +28,8 @@ document.getElementById('icon-cont').appendChild(addIcon);
 
 // All buttons and containers in page
 const page = { 
+    content: document.getElementById('content'),
+    currentView: document.getElementById('currentView'),
     dropdownCont: document.getElementById('addButtons'),
     errorL: document.getElementById('listNameError'),
     errorP: document.getElementById('projNameError'),
@@ -38,7 +40,14 @@ const page = {
     modalShadow: document.getElementById('modalShadow'),
     projectForm: document.getElementById('newProjForm'),
     sidebar: document.getElementById('files'),
-    
+    sideList: document.getElementsByClassName('sideList'),
+    sideProjects: document.getElementsByClassName('sideProjects'),
+    lvTile: {
+        lTitle: document.getElementbyId('LVListTitle'),
+        ldue: document.getElementbyId('LVdeadline'),
+        cCont: document.getElementbyId('LVCheckContainer'),
+        lCont: document.getElementbyId('LVListItems')
+    },
     fields: { 
         projDropdown: document.getElementById('allProjects'),
         listName: document.getElementById('listName'),
@@ -110,6 +119,7 @@ const display = { // Display appropriate form
         div.setAttribute('id', 'parent' + name);
         let project = document.createElement('h3');
         project.textContent = name;
+        project.setAttribute('class', 'sideProject');
         project.setAttribute('id', name);
         // Add elements to dom
         page.sidebar.appendChild(div);
@@ -121,10 +131,12 @@ const display = { // Display appropriate form
         // Create p element
         let list = document.createElement('p');
         list.textContent = listName;
+        list.setAttribute('data-id', projectName);
+        list.setAttribute('class', 'sideList');
         list.setAttribute('id', listName);
         // Get parent element
         let parent = document.getElementById('parent' + projectName);
-        parent.appendChild(list)
+        parent.appendChild(list);
     }
     // else if (click edit)
         // load list tile into form areas
@@ -135,11 +147,7 @@ const display = { // Display appropriate form
 const validate = {
     name(name, array, formType, datumType) {
         let errorMessage;
-        console.log('formType', formType);
         formType === 'list' ? errorMessage = page.errorL : errorMessage = page.errorP;
-        console.log('page.errorL:', page.errorL);
-        console.log('page.errorP:', page.errorP);
-        console.log('errorMessage:', errorMessage);
         if (name === '') { // Field is empty
             errorMessage.style.display = 'block';
             errorMessage.textContent = 'ERROR: ' + datumType + ' name must contain 1 or more characters.';
@@ -200,7 +208,6 @@ const addNew = {
 
     project(e) {
         addNew.stopSub(e);
-        console.log('entered project form');
         // Get Project name 
         let projectName = page.fields.projectName.value;
 
@@ -218,7 +225,6 @@ const addNew = {
     },
 
     list(e) {
-        console.log('entered LIST form');
         addNew.stopSub(e);
         // Get list data from DOM
         let listName = page.fields.listName.value;
@@ -255,13 +261,10 @@ const addNew = {
 
         // Find project with this name
         for (let i = 0; i < projects.length; i++) {
-            console.log('projects[i].name:', projects[i].name);
-            console.log('projectName:', projectName);
             if (projects[i].name === projectName) { 
                 parentProject = projects[i];
             }
         }
-        console.log("parentProject", parentProject);
         // validate listName name(name, formType, datumType)
         if (!validate.name(listName, parentProject.lists, 'list', 'list')){ // failed
             return;
@@ -290,6 +293,79 @@ const addNew = {
         page.show(page.buttons.selectProjects);
         page.clearForms();
         page.hideAll();
+    },
+
+    listView(e) {
+        // Get list data
+        addNew.stopSub(e);
+        let projectParentName = e.target.getAttribute('data-Id');
+        let listName = e.target.getAttribute('id');
+        // Set header contents
+        page.currentView.textContent = projectParentName + ' / ' + listName;
+        let projectParent;
+        let listData;
+        for (let i = 0; i < projects.length; i++){
+            if (projects[i].name === projectParentName){
+                projectParent = projects[i]
+                break;
+            }
+        }
+        for (let i = 0; i < projectParent.lists.length; i++) {
+            if (projectParent.lists[i] === listName) {
+                listData = projectParent.lists[i];
+            }
+        }
+        page.lvTile.lTitle.textContent = listData.name;
+        page.lvTile.ldue.textContent = listData.dueDate;
+        for (let i = 0; i < listData.items.length; i++) {
+            //Dynamically create list and checkboxes
+            let tempCheck = document.createElement('input');
+            tempCheck.setAttribute('type', 'checkbox');
+            tempCheck.setAttribute('class', 'checkbox');
+            tempCheck.setAttribute('name', 'listIndex' + i);
+            let tempItem = document.createElement('p');
+            tempItem.setAttribute('class', 'listItem');
+            tempItem.setAttribute('id', 'listIndex' + i);
+            // Add to dom
+            page.lvTile.cCont.appendChild(placeholder);
+            page.lvTile.lCont.appendChild(placeholder);
+        }
+    },
+
+    projectView(e){
+        addNew.stopSub(e);
+        let projectName = e.target.getAttribute('id');
+        page.currentView.textContent = projectName // Set header contents
+        let projectObj; // Get project object
+        for (let i = 0; i < projects.length; i++){
+            if (projects[i].name === projectName){
+                projectObj = projects[i]
+                break;
+            }
+        }
+        for (let i = 0; i < projectObj.lists.length; i++) {
+            // dynamically create PVTile tiles
+            let tile = document.createElement('div');
+            tile.setAttribute('class', 'PVTile');
+            let headingDiv = document.createElement('div');
+            headingDiv.setAttribute('class', 'headingContainer');
+            let listTitle = document.createElement('h2');
+            listTitle.setAttribute('class', 'listTitle');
+            listTitle.textContent = projectObj.lists[i].name;
+            let deadline = document.createElement('h5');
+            deadline.setAttribute('class', 'deadline');
+            deadline.textContent = 'Due: ' + projectObj.lists[i].dueDate;
+            let priority = document.createElement('h5');
+            priority.setAttribute('class', 'deadline');
+            priority.textContent = 'Priority: ' + projectObj.lists[i].priority;
+
+            page.content.appendChild(tile);
+            tile.appendChild(headingDiv);
+            headingDiv.appendChild(listTitle);
+            headingDiv.appendChild(deadline);
+            headingDiv.appendChild(priority);
+        }
+
     }
 };
 
@@ -303,7 +379,14 @@ page.buttons.addItems.addEventListener('click', addNew.listItem);
 page.buttons.addList.addEventListener('click', addNew.list);
 page.buttons.addProject.addEventListener('click', addNew.project);
 page.buttons.selectProjects.addEventListener('change', addNew.listProj);
-
+// sidebar buttons
+for (let i = 0; i < page.sideList.length; i++) {
+    page.sideList[i].addEventListener('click', display.listView);
+}
+// page.sideProjects[i]
+for (let i = 0; i < page.sideProjects.length; i++) {
+    page.sideProjects[i].addEventListener('click', display.projectView);
+}
 // Set Defaults
 page.hideAll();
 

@@ -143,6 +143,16 @@ select{
     padding-left: 10px;
     justify-content: flex-start;
 }
+.sideProject:hover {
+    cursor: pointer;
+    color: black;
+    background-color: rgb(199, 208, 208);
+}
+.sideList:hover {
+    cursor: pointer;
+    color: black;
+    background-color: rgb(174, 201, 201);
+}
 
 #content {
     grid-area: 2 / 2 / 3 / 3;
@@ -203,7 +213,7 @@ input.checkbox{
     margin: 0px;
 }
 
-.projTile {
+.PVTile {
     background-color: rgb(28, 30, 30);
     min-width: 100px;
     min-height: 100px;
