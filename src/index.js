@@ -148,36 +148,39 @@ const display = { // Display appropriate form
         // display edit form
 };
 
+
 const validate = {
-    projectName(name){
+    projectName(name) {
         for (let i = 0; i < projects.length; i++){
             if (projects[i].name === name) { // Name is not unique
                 page.errorP.style.display = 'block';
-                page.errorP.textContent = 'ERROR: project \"' + name + '\" already exists.'
+                page.errorP.textContent = 'ERROR: A project with the name \"' + name + '\" already exists.';
                 return false;
-            } else if (projects[i].name === '') { // Field is empty
+            } else if (name === '') { // Field is empty
                 page.errorP.style.display = 'block';
-                page.errorP.textContent = 'ERROR: project name must contain 1 or more characters.'
+                page.errorP.textContent = 'ERROR: project name must contain 1 or more characters.';
                 return false;
             }
         }
         return true;
     },
-    listName(name, parentListArray){
-        for (let i = 0; i < parentListArray.length; i++){
-            if (parentListArray[i] === 'name'){ // Name is not unique
+    listName(name, listsArray) {
+        console.log('entered listName validation');
+        for (let i = 0; i < listsArray.length; i++){
+            if (listsArray[i].name === name){ // Name is not unique
                 page.errorL.style.display = 'block';
-                page.errorL.textContent = 'ERROR: \"' + name + '\" list already exists.'
+                page.errorL.textContent = 'ERROR: A list with the name \"' + name + '\" already exists.';
                 return false;
-            } else if (parentListArray[i] === '') { // Field is empty
+            } else if (name === '') { // Field is empty
                 page.errorL.style.display = 'block';
-                page.errorL.textContent = 'ERROR: list name must contain 1 or more characters.'
+                page.errorL.textContent = 'ERROR: list name must contain 1 or more characters.';
                 return false;
             }
         }
     return true;
     }
 };
+
 
 const addNew = {
     stopSub(e) {
@@ -222,6 +225,7 @@ const addNew = {
         projects.push(new Project (projectName, []));
         display.projectFile(projectName);
         page.hideAll();
+        page.clearForms();
     },
 
     list() {
@@ -234,9 +238,9 @@ const addNew = {
         let priority;
         let projectName;
 
-        // Get parent project name
-        // If parent input is not hidden
+        // Get parent project's name
         if (window.getComputedStyle(page.fields.lProjectName).display === 'flex'){
+            // If adding project within '+list' form
             projectName = page.fields.lProjectName.value;
             // Validate project name
             if (!validate.projectName(projectName)){
@@ -258,13 +262,15 @@ const addNew = {
 
         // Find project with this name
         for (let i = 0; i < projects.length; i++) {
-            if (projects[i][projectName] === projectName) { 
+            console.log('projects[i].name:', projects[i].name);
+            console.log('projectName:', projectName);
+            if (projects[i].name === projectName) { 
                 parentProject = projects[i];
             }
         }
 
         // validate listName
-        if (!validate.listName(listName, parentProject.lists)){
+        if (!validate.listName(listName, parentProject.lists)){ // failed
             return;
         } 
 
@@ -289,6 +295,7 @@ const addNew = {
         page.listCounter = 1;
         // Replace dropdown element & reset to default view
         page.show(page.buttons.selectProjects);
+        page.clearForms();
         page.hideAll();
     }
 }
