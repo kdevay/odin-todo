@@ -14,7 +14,7 @@
         <div id="modalShadow"></div>
         <div id="modal"> 
             <!-- new project -->
-            <div class="form" id="newProjForm">
+            <form class="form" id="newProjForm">
                 <h2 class="listTitle">Create New Project</h2>
                 <div>
                     <label for="projName">Project Name: </label>
@@ -22,10 +22,10 @@
                 </div><br>
                 <p id="projNameError" class="error"></p>
                 <button class="fsubmit" type="submit" id="addProject">Add Project</button>
-            </div>
+            </form>
             
             <!-- new list -->
-            <div class="form" id="newListForm">
+            <form class="form" id="newListForm">
                 <h2 class="listTitle">Create New List</h2>
                 <div>
                     <select name="allProjects" id="allProjects">
@@ -55,7 +55,7 @@
                 </ol>
                 <button id="addItems" data-id="1"> + </button>
                 <button class="fsubmit" type="submit" id="addList">Add List</button>
-            </div>
+            </form>
             <!-- are you sure message for deletion (?) -->
         </div>
         <div id="top"> 

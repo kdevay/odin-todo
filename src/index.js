@@ -64,6 +64,7 @@ const page = {
         element.style.display =  'none';
     },
     hideAll() {
+        this.hide(this.errorL);
         this.hide(this.errorP);
         this.hide(this.modal);
         this.hide(this.modalShadow);
@@ -72,20 +73,9 @@ const page = {
         this.hide(this.listForm);
         this.hide(this.fields.lProjectName);
     },
-    clearForms(){
-        for (field in page.fields) {
-            // If field is a dropdown
-            if (field === page.fields.priority || field === page.fields.projDropdown) {
-                for (let i = 0; i < x.length; i++) {
-                    if (field[i].selected === true) { 
-                        field[i].setAttribute('selected', false);
-                    }
-                }
-            // For text inputs
-            } else {
-                field.value = '';
-            }
-        }
+    clearForms() {
+        page.listForm.reset();
+        page.projectForm.reset();
     }
 };
 
@@ -94,25 +84,11 @@ const display = { // Display appropriate form
     shadow() {
         // Close all forms on shadow click
         page.hideAll();
+        page.clearForms();
     },
     add() { // On 'plus' icon click,
         page.show(page.modalShadow); // Display modal shadow & dropdown buttons
         page.show(page.dropdownCont);
-    },
-    listForm() { // On '+list' button click,
-        // Display modal & hide dropdown buttons
-        page.show(page.modal);
-        page.show(page.modalShadow);
-        page.hide(page.dropdownCont);
-        // TODO: add all project names into dropdown menu:  
-        let parent = page.fields.projDropdown;
-        for (let i = 0; i < projects.length; i++) {
-            let temp = document.createElement('option');
-            temp.setAttribute('value', projects[i].name);
-            temp.textContent = projects[i].name;
-            parent.appendChild(temp);
-        }
-        page.show(page.listForm); // Display List form
     },
     projectForm() { // On '+project' button click,
         // Display modal & hide dropdown buttons
@@ -120,6 +96,13 @@ const display = { // Display appropriate form
         page.show(page.modalShadow);
         page.hide(page.dropdownCont);
         page.show(page.projectForm); // Display Project form
+    },
+    listForm() { // On '+list' button click,
+        // Display modal & hide dropdown buttons
+        page.show(page.modal);
+        page.show(page.modalShadow);
+        page.hide(page.dropdownCont);
+        page.show(page.listForm); // Display List form
     },
     projectFile(name) {
         // Create Div and heading elements
@@ -150,35 +133,27 @@ const display = { // Display appropriate form
 
 
 const validate = {
-    projectName(name) {
-        for (let i = 0; i < projects.length; i++){
-            if (projects[i].name === name) { // Name is not unique
-                page.errorP.style.display = 'block';
-                page.errorP.textContent = 'ERROR: A project with the name \"' + name + '\" already exists.';
-                return false;
-            } else if (name === '') { // Field is empty
-                page.errorP.style.display = 'block';
-                page.errorP.textContent = 'ERROR: project name must contain 1 or more characters.';
+    name(name, array, formType, datumType) {
+        let errorMessage;
+        console.log('formType', formType);
+        formType === 'list' ? errorMessage = page.errorL : errorMessage = page.errorP;
+        console.log('page.errorL:', page.errorL);
+        console.log('page.errorP:', page.errorP);
+        console.log('errorMessage:', errorMessage);
+        if (name === '') { // Field is empty
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = 'ERROR: ' + datumType + ' name must contain 1 or more characters.';
+            return false;
+        }
+        for (let i = 0; i < array.length; i++){
+            if (array[i].name.toLowerCase()  === name.toLowerCase()) { // Name is not unique
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'ERROR: A ' + datumType + ' with the name \"' + name + '\" already exists.';
                 return false;
             }
         }
         return true;
     },
-    listName(name, listsArray) {
-        console.log('entered listName validation');
-        for (let i = 0; i < listsArray.length; i++){
-            if (listsArray[i].name === name){ // Name is not unique
-                page.errorL.style.display = 'block';
-                page.errorL.textContent = 'ERROR: A list with the name \"' + name + '\" already exists.';
-                return false;
-            } else if (name === '') { // Field is empty
-                page.errorL.style.display = 'block';
-                page.errorL.textContent = 'ERROR: list name must contain 1 or more characters.';
-                return false;
-            }
-        }
-    return true;
-    }
 };
 
 
@@ -190,7 +165,7 @@ const addNew = {
 
     //  Add List item
     listItem(e) {
-        // this.stopSub(e);
+        addNew.stopSub(e);
         // increment list counter
         page.listCounter++;
         // Add li and nested input to dom
@@ -205,6 +180,7 @@ const addNew = {
 
     // Selected new project in new list form
     listProj(e) {
+        addNew.stopSub(e);
         // Show project name field 
         if (e.target.options[e.target.selectedIndex].text === 'New project'){
             page.show(page.fields.lProjectName);
@@ -212,23 +188,38 @@ const addNew = {
         }
     },
 
-    project() {
+    // add new project name to dropdown menu:  
+    dropProj(name){
+        let parent = page.fields.projDropdown; // Dropdown parent container
+        let temp = document.createElement('option');
+        temp.setAttribute('class', 'addedProject');
+        temp.setAttribute('value', name);
+        temp.textContent = name;
+        parent.appendChild(temp);
+    },
+
+    project(e) {
+        addNew.stopSub(e);
+        console.log('entered project form');
         // Get Project name 
         let projectName = page.fields.projectName.value;
 
-        // Make sure project name is unique & is not empty
-        if (!validate.projectName(projectName)){
+        // Make sure project name is unique & is not empty 
+        if (!validate.name(projectName, projects, 'project', 'project')){
             return false;
         }
 
-        // Add project to memory & display
+        // Add project to dropdown form, projects array & update DOM
+        addNew.dropProj(projectName)
         projects.push(new Project (projectName, []));
         display.projectFile(projectName);
         page.hideAll();
         page.clearForms();
     },
 
-    list() {
+    list(e) {
+        console.log('entered LIST form');
+        addNew.stopSub(e);
         // Get list data from DOM
         let listName = page.fields.listName.value;
         let dueDate = page.fields.dueDate.value;
@@ -243,10 +234,12 @@ const addNew = {
             // If adding project within '+list' form
             projectName = page.fields.lProjectName.value;
             // Validate project name
-            if (!validate.projectName(projectName)){
+            //                  (name, array, formType, datumType)
+            if (!validate.name(projectName, projects, 'list', 'project')){
                 return;
             }
-            // Add project to memory & update DOM
+            // Add new project to dropdown form, projects array & update DOM
+            addNew.dropProj(projectName)
             projects.push(new Project (projectName, []));
             projectFile(projectName); 
 
@@ -268,9 +261,9 @@ const addNew = {
                 parentProject = projects[i];
             }
         }
-
-        // validate listName
-        if (!validate.listName(listName, parentProject.lists)){ // failed
+        console.log("parentProject", parentProject);
+        // validate listName name(name, formType, datumType)
+        if (!validate.name(listName, parentProject.lists, 'list', 'list')){ // failed
             return;
         } 
 
@@ -298,7 +291,7 @@ const addNew = {
         page.clearForms();
         page.hideAll();
     }
-}
+};
 
 
 // Events ////////////////////////////////////////////////////////
