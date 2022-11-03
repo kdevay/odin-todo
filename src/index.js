@@ -4,15 +4,16 @@ import Add from './add.png';
 import Dots from './dots.png';
 
 // projects
-const projects = {};
+const projects = [];
 class Project { 
-    constructor (dueDate, lists) {
-    this.dueDate = dueDate;
+    constructor (name, lists) {
+    this.name = name;
     this.lists = lists;
 }};
 
 class List {
-    constructor (dueDate, priority, items) {    
+    constructor (name, dueDate, priority, items) {    
+    this.name = name;
     this.dueDate = dueDate;
     this.priority = priority;
     this.items = items;
@@ -27,22 +28,22 @@ document.getElementById('icon-cont').appendChild(addIcon);
 
 // All buttons and containers in page
 const page = { 
-    listCounter: 1,
-    listItemsOL: document.getElementById('formListItems'),
     dropdownCont: document.getElementById('addButtons'),
+    listCounter: 1,
+    listForm: document.getElementById('newListForm'),
+    listItemsOL: document.getElementById('formListItems'),
     modal: document.getElementById('modal'),
     modalShadow: document.getElementById('modalShadow'),
     projectForm: document.getElementById('newProjForm'),
-    listForm: document.getElementById('newListForm'),
+    sidebar: document.getElementById('files'),
     
-    field: {
+    field: { 
         projDropdown: document.getElementById('allProjects'),
         listName: document.getElementById('listName'),
         priority: document.getElementById('priority'),
-        lDueDate: document.getElementById('lDueDate'),
+        dueDate: document.getElementById('dueDate'),
         lProjectName: document.getElementById('lFormProjName'),
         projectName: document.getElementById('projName'),
-        pDueDate: document.getElementById('pDueDate')
     },
     buttons: { 
         add: addIcon,
@@ -69,50 +70,72 @@ const page = {
         this.hide(this.field.lProjectName);
     }
 };
-console.log(page.buttons.selectProjects);
 
 // functions ////////////////////////////////////////////////////////
-function displayForm(e) { // Display appropriate form based on button id
-    const buttonId = e.target.getAttribute('id');
-
-    if (buttonId === page.modalShadow.getAttribute('id')){
+const display = { // Display appropriate form
+    shadow() {
         // Close all forms on shadow click
         page.hideAll();
-        return;
-    }
-
-    page.show(page.modalShadow); // Display modal shadow
-
-    if (buttonId === page.buttons.add.getAttribute('id')) {
-        // Display dropdown buttons
+    },
+    add() { // On 'plus' icon click,
+        page.show(page.modalShadow); // Display modal shadow & dropdown buttons
         page.show(page.dropdownCont);
-        return;
-    }
-
-    // Display modal & hide dropdown buttons
-    page.show(page.modal);
-    page.hide(page.dropdownCont);
-    
-    if (buttonId === page.buttons.displayLForm.getAttribute('id')) {
-        // add all project names into dropdown menu: <option value="misc">Miscellaneous</option> 
+    },
+    listForm() { // On '+list' button click,
+        // Display modal & hide dropdown buttons
+        page.show(page.modal);
+        page.show(page.modalShadow);
+        page.hide(page.dropdownCont);
+        // TODO: add all project names into dropdown menu:  
+        let parent = page.field.projDropdown;
+        for (let i = 0; i < projects.length; i++) {
+            let temp = document.createElement('option');
+            temp.setAttribute('value', projects[i].name);
+            temp.textContent = projects[i].name;
+            parent.appendChild(temp);
+        }
         page.show(page.listForm); // Display List form
-
-    } else if (buttonId === page.buttons.displayPForm.getAttribute('id')) { 
+    },
+    projectForm() { // On '+project' button click,
+        // Display modal & hide dropdown buttons
+        page.show(page.modal);
+        page.show(page.modalShadow);
+        page.hide(page.dropdownCont);
         page.show(page.projectForm); // Display Project form
+    },
+    projectFile(name) {
+        // Create Div and heading elements
+        let div = document.createElement('div');
+        let project = document.createElement('h3');
+        project.textContent = name;
+        project.setAttribute('id', name);
+        // Add elements to dom
+        page.sidebar.appendChild(div);
+        div.appendChild(project);
+    },
+    listFile(name, project) {
+        // Create p element
+        let list = document.createElement('p');
+        project.textContent = name;
+        project.setAttribute('id', name);
+        // Get parent element
+        let parent = document.getElementById(project);
+        parent.appendChild(list)
     }
     // else if (click edit)
         // load list tile into form areas
         // display edit form
-}
+};
 
-function addNew(e) {
+const addNew = {
+    stopSub(e) {
     // Prevent form submission
     e.preventDefault();
+    },
 
-    const buttonId = e.target.getAttribute('id');
-    console.log(e.target);
     //  Add List item
-    if (buttonId === page.buttons.addItems.getAttribute('id')){
+    listItem(e) {
+        this.stopSub(e);
         // increment list counter
         page.listCounter++;
         // Add li and nested input to dom
@@ -123,83 +146,90 @@ function addNew(e) {
         tempInput.setAttribute('id', 'listItem' + page.listCounter)
         tempLI.appendChild(tempInput);
         page.listItemsOL.appendChild(tempLI);
+    },
 
     // Selected new project in new list form
-    } else if (buttonId === page.buttons.selectProjects.getAttribute('id')) {
+    listProj(e) {
         // Show project name field 
         if (e.target.options[e.target.selectedIndex].text === 'New project'){
             page.show(page.field.lProjectName);
             page.hide(page.buttons.selectProjects);
         }
-        return;
+    },
 
-    // Add Project 
-    } else if (buttonId === page.buttons.addProject.getAttribute('id')) {
+    project() {
         // Add Project name to memory
         let projectName = page.field.lProjectName.value;
-        projects[projectName] = new Project (page.field.pDueDate.value, []);
+        projects[projectName] = new Project (projectName, []);
+        display.projectFile(projectName);
+    },
 
-        // field: {
-        //     listName: document.getElementById('listName'),
-        //     priority: document.getElementById('priority'),
-        //     lDueDate: document.getElementById('ldueDate'),
-            //     lProjectName: document.getElementById('lFormProjName'),
-            //     projectName: document.getElementById('projName'),
-            //     pDueDate: document.getElementById('pDueDate')
-
-    // Add list
-    } else {
+    list() {
         // Get list data from DOM
         let listName = page.field.listName.value;
-        let dueDate = page.field.lDueDate.value;
+        let dueDate = page.field.dueDate.value;
         let elements = document.getElementsByClassName('formItem');
         let items = []; 
-        for (let i = 0; i < elements.length; i++) { // Get list values from list elements array
+        let priority;
+        let projectName;
+        // Get list array values from list elements array
+        for (let i = 0; i < elements.length; i++) { 
             items.push(elements[i].value);
         }
-        let priority;
+        // Get priority value from select priority array
         for (let i = 0; i < page.field.priority.length; i++) {
-            if (page.field.priority[i].selected === 'true') { // Get priority value from select priority array
+            if (page.field.priority[i].selected === true) { 
                 priority = page.field.priority[i].value;
+            }
+            if (priority === '') {
+                priority = 'normal';
             }
         }
         // Construct new list
-        let list = new List (dueDate, priority, items);
+        let list = new List (listName, dueDate, priority, items);
 
-        let projectName;
         // If adding new project within list form
         if (window.getComputedStyle(page.field.lProjectName).display === 'flex'){
-            // Create and add new project
+            // Create new project
             projectName = page.field.lProjectName.value;
-            projects[projectName] = new Project (projectName, page.field.pDueDate.value, []) 
-        } else {
+            projects.push(new Project (projectName, []));
+            projectFile(projectName); // Add project to DOM
+
+        } else { // Get project value from select project array
             for (let i = 0; i < page.field.projDropdown.length; i++) {
-                if (page.field.projDropdown[i].selected === 'true') { // Get project value from select project array
+                if (page.field.projDropdown[i].selected === true) { 
                     projectName = page.field.projDropdown[i].value;
                 }
             }
         }
-        console.log('projects[projectName].lists:', projects[projectName].lists);
         // Add list to existing project
-        projects[projectName].lists.push(listName);
-        projects[projectName].lists[listName] = list;
-        // Reset list counter
+        let parentProject;
+        for (let i = 0; i < projects.length; i++) {
+            if (projects[i][projectName] === projectName) { 
+                parentProject = projects[i];
+            }
+        }
+        !parentProject ? console.log('error') : parentProject.lists.push(list);
+        
+        // Add list to DOM & reset list counter
+        listFile(listName, projectName)
         page.listCounter = 1;
-        console.log('projects:', projects);
-        page.hideAll;
+        // Replace dropdown element & hide form
+        page.show(page.buttons.selectProjects);
+        page.hideAll();
     }
 }
 
 
 // Events ////////////////////////////////////////////////////////
-page.modalShadow.addEventListener('click', displayForm);
-page.buttons.add.addEventListener('click', displayForm);
-page.buttons.displayPForm.addEventListener('click', displayForm);
-page.buttons.displayLForm.addEventListener('click', displayForm);
-page.buttons.addItems.addEventListener('click', addNew);
+page.modalShadow.addEventListener('click', display.shadow);
+page.buttons.add.addEventListener('click', display.add);
+page.buttons.displayPForm.addEventListener('click', display.projectForm);
+page.buttons.displayLForm.addEventListener('click', display.listForm);
+page.buttons.addItems.addEventListener('click', addNew.listItem);
 page.buttons.addList.addEventListener('click', addNew);
-page.buttons.addProject.addEventListener('click', addNew);
-page.buttons.selectProjects.addEventListener('change', addNew);
+page.buttons.addProject.addEventListener('click', addNew.project);
+page.buttons.selectProjects.addEventListener('change', addNew.listProj);
 
 // Set Defaults
 page.hideAll();
