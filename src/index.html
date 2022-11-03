@@ -19,8 +19,10 @@
                 <div>
                     <label for="projName">Project Name: </label>
                     <input type="text" id="projName">
-                </div>
-                <br>
+                </div><br>
+                <div>
+                    <input type="text" id="pDueDate" placeholder="Due Date">
+                </div><br>
                 <button class="fsubmit" type="submit" id="addProject">Add Project</button>
             </div>
             
@@ -28,15 +30,26 @@
             <div class="form" id="newListForm">
                 <h2 class="listTitle">Create New List</h2>
                 <div>
-                    <select name="project" id="allProjects">
+                    <select name="allProjects" id="allProjects">
                         <option value="" disabled selected>Choose a project:</option>
                         <option value="misc">Miscellaneous</option> 
-                        <option id="listToNewProject" value="pl">New project</option>
+                        <option value="newProject">New project</option>
                     </select>
                     <input type="text" id="lFormProjName" placeholder="Project Name">
                 </div>
                 <div>
                     <input type="text" id="listName" placeholder="List Title">
+                </div>
+                <div>
+                    <input type="text" id="lDueDate" placeholder="Due Date">
+                </div>
+                <div>
+                    <select name="priority" id="priority">
+                        <option value="" disabled selected>Priority:</option>
+                        <option value="high">high</option> 
+                        <option value="normal">normal</option> 
+                        <option value="low">low</option>
+                    </select>
                 </div>
                 <ol id="formListItems">
                     <li><input class="formItem" type="text" id="listItem1"></li>

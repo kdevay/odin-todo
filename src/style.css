@@ -1,6 +1,9 @@
 *{
     color: white;
 }
+input {
+    color: black;
+}
 ol {
     padding-inline-start: 17px;
 }
