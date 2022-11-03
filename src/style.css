@@ -217,4 +217,7 @@ input.checkbox{
     justify-content: center;
     flex-direction: column;
 }
-
+.error{
+    display: none;
+    color: brown;
+}

@@ -29,6 +29,8 @@ document.getElementById('icon-cont').appendChild(addIcon);
 // All buttons and containers in page
 const page = { 
     dropdownCont: document.getElementById('addButtons'),
+    errorL: document.getElementById('listNameError'),
+    errorP: document.getElementById('projNameError'),
     listCounter: 1,
     listForm: document.getElementById('newListForm'),
     listItemsOL: document.getElementById('formListItems'),
@@ -37,7 +39,7 @@ const page = {
     projectForm: document.getElementById('newProjForm'),
     sidebar: document.getElementById('files'),
     
-    field: { 
+    fields: { 
         projDropdown: document.getElementById('allProjects'),
         listName: document.getElementById('listName'),
         priority: document.getElementById('priority'),
@@ -62,12 +64,28 @@ const page = {
         element.style.display =  'none';
     },
     hideAll() {
+        this.hide(this.errorP);
         this.hide(this.modal);
         this.hide(this.modalShadow);
         this.hide(this.dropdownCont);
         this.hide(this.projectForm);
         this.hide(this.listForm);
-        this.hide(this.field.lProjectName);
+        this.hide(this.fields.lProjectName);
+    },
+    clearForms(){
+        for (field in page.fields) {
+            // If field is a dropdown
+            if (field === page.fields.priority || field === page.fields.projDropdown) {
+                for (let i = 0; i < x.length; i++) {
+                    if (field[i].selected === true) { 
+                        field[i].setAttribute('selected', false);
+                    }
+                }
+            // For text inputs
+            } else {
+                field.value = '';
+            }
+        }
     }
 };
 
@@ -87,7 +105,7 @@ const display = { // Display appropriate form
         page.show(page.modalShadow);
         page.hide(page.dropdownCont);
         // TODO: add all project names into dropdown menu:  
-        let parent = page.field.projDropdown;
+        let parent = page.fields.projDropdown;
         for (let i = 0; i < projects.length; i++) {
             let temp = document.createElement('option');
             temp.setAttribute('value', projects[i].name);
@@ -106,6 +124,7 @@ const display = { // Display appropriate form
     projectFile(name) {
         // Create Div and heading elements
         let div = document.createElement('div');
+        div.setAttribute('id', 'parent' + name);
         let project = document.createElement('h3');
         project.textContent = name;
         project.setAttribute('id', name);
@@ -113,18 +132,51 @@ const display = { // Display appropriate form
         page.sidebar.appendChild(div);
         div.appendChild(project);
     },
-    listFile(name, project) {
+    listFile(listName, projectName) {
+        // Logic for un-selected project Name
+        projectName ? projectName = projectName : projectName = 'Miscellaneous';
         // Create p element
         let list = document.createElement('p');
-        project.textContent = name;
-        project.setAttribute('id', name);
+        list.textContent = listName;
+        list.setAttribute('id', listName);
         // Get parent element
-        let parent = document.getElementById(project);
+        let parent = document.getElementById('parent' + projectName);
         parent.appendChild(list)
     }
     // else if (click edit)
         // load list tile into form areas
         // display edit form
+};
+
+const validate = {
+    projectName(name){
+        for (let i = 0; i < projects.length; i++){
+            if (projects[i].name === name) { // Name is not unique
+                page.errorP.style.display = 'block';
+                page.errorP.textContent = 'ERROR: project \"' + name + '\" already exists.'
+                return false;
+            } else if (projects[i].name === '') { // Field is empty
+                page.errorP.style.display = 'block';
+                page.errorP.textContent = 'ERROR: project name must contain 1 or more characters.'
+                return false;
+            }
+        }
+        return true;
+    },
+    listName(name, parentListArray){
+        for (let i = 0; i < parentListArray.length; i++){
+            if (parentListArray[i] === 'name'){ // Name is not unique
+                page.errorL.style.display = 'block';
+                page.errorL.textContent = 'ERROR: \"' + name + '\" list already exists.'
+                return false;
+            } else if (parentListArray[i] === '') { // Field is empty
+                page.errorL.style.display = 'block';
+                page.errorL.textContent = 'ERROR: list name must contain 1 or more characters.'
+                return false;
+            }
+        }
+    return true;
+    }
 };
 
 const addNew = {
@@ -135,7 +187,7 @@ const addNew = {
 
     //  Add List item
     listItem(e) {
-        this.stopSub(e);
+        // this.stopSub(e);
         // increment list counter
         page.listCounter++;
         // Add li and nested input to dom
@@ -152,14 +204,21 @@ const addNew = {
     listProj(e) {
         // Show project name field 
         if (e.target.options[e.target.selectedIndex].text === 'New project'){
-            page.show(page.field.lProjectName);
+            page.show(page.fields.lProjectName);
             page.hide(page.buttons.selectProjects);
         }
     },
 
     project() {
-        // Add Project name to memory
-        let projectName = page.field.projectName.value;
+        // Get Project name 
+        let projectName = page.fields.projectName.value;
+
+        // Make sure project name is unique & is not empty
+        if (!validate.projectName(projectName)){
+            return false;
+        }
+
+        // Add project to memory & display
         projects.push(new Project (projectName, []));
         display.projectFile(projectName);
         page.hideAll();
@@ -167,55 +226,68 @@ const addNew = {
 
     list() {
         // Get list data from DOM
-        let listName = page.field.listName.value;
-        let dueDate = page.field.dueDate.value;
+        let listName = page.fields.listName.value;
+        let dueDate = page.fields.dueDate.value;
         let elements = document.getElementsByClassName('formItem');
         let items = []; 
+        let parentProject;
         let priority;
         let projectName;
-        // Get list array values from list elements array
-        for (let i = 0; i < elements.length; i++) { 
-            items.push(elements[i].value);
-        }
-        // Get priority value from select priority array
-        for (let i = 0; i < page.field.priority.length; i++) {
-            if (page.field.priority[i].selected === true) { 
-                priority = page.field.priority[i].value;
-            }
-            if (priority === '') {
-                priority = 'normal';
-            }
-        }
-        // Construct new list
-        let list = new List (listName, dueDate, priority, items);
 
-        // If adding new project within list form
-        if (window.getComputedStyle(page.field.lProjectName).display === 'flex'){
-            // Create new project
-            projectName = page.field.lProjectName.value;
+        // Get parent project name
+        // If parent input is not hidden
+        if (window.getComputedStyle(page.fields.lProjectName).display === 'flex'){
+            projectName = page.fields.lProjectName.value;
+            // Validate project name
+            if (!validate.projectName(projectName)){
+                return;
+            }
+            // Add project to memory & update DOM
             projects.push(new Project (projectName, []));
-            projectFile(projectName); // Add project to DOM
+            projectFile(projectName); 
 
-        } else { // Get project value from select project array
-            for (let i = 0; i < page.field.projDropdown.length; i++) {
-                if (page.field.projDropdown[i].selected === true) { 
-                    projectName = page.field.projDropdown[i].value;
+        } else { // Get project value from dropdown menu
+            for (let i = 0; i < page.fields.projDropdown.length; i++) {
+                if (page.fields.projDropdown[i].selected === true) { 
+                    projectName = page.fields.projDropdown[i].value;
                 }
             }
+            // If nothing selected, default to miscellaneous 
+            !projectName ? projectName = 'Miscellaneous' : projectName = projectName;
         }
-        // Add list to existing project
-        let parentProject;
+
+        // Find project with this name
         for (let i = 0; i < projects.length; i++) {
             if (projects[i][projectName] === projectName) { 
                 parentProject = projects[i];
             }
         }
-        !parentProject ? console.log('error') : parentProject.lists.push(list);
+
+        // validate listName
+        if (!validate.listName(listName, parentProject.lists)){
+            return;
+        } 
+
+        // Get list array values from list elements array
+        for (let i = 0; i < elements.length; i++) { 
+            items.push(elements[i].value);
+        }
+        // Get priority value from dropdown
+        for (let i = 0; i < page.fields.priority.length; i++) {
+            if (page.fields.priority[i].selected === true) { 
+                priority = page.fields.priority[i].value;
+            }
+        }
+        priority === '' ? priority = 'normal' : priority = priority;
         
+        // Construct new list & add to parent project
+        let list = new List (listName, dueDate, priority, items);
+        parentProject.lists.push(list);
+
         // Add list to DOM & reset list counter
-        listFile(listName, projectName)
+        display.listFile(listName, projectName)
         page.listCounter = 1;
-        // Replace dropdown element & hide form
+        // Replace dropdown element & reset to default view
         page.show(page.buttons.selectProjects);
         page.hideAll();
     }
