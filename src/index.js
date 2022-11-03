@@ -159,9 +159,10 @@ const addNew = {
 
     project() {
         // Add Project name to memory
-        let projectName = page.field.lProjectName.value;
-        projects[projectName] = new Project (projectName, []);
+        let projectName = page.field.projectName.value;
+        projects.push(new Project (projectName, []));
         display.projectFile(projectName);
+        page.hideAll();
     },
 
     list() {
@@ -227,7 +228,7 @@ page.buttons.add.addEventListener('click', display.add);
 page.buttons.displayPForm.addEventListener('click', display.projectForm);
 page.buttons.displayLForm.addEventListener('click', display.listForm);
 page.buttons.addItems.addEventListener('click', addNew.listItem);
-page.buttons.addList.addEventListener('click', addNew);
+page.buttons.addList.addEventListener('click', addNew.list);
 page.buttons.addProject.addEventListener('click', addNew.project);
 page.buttons.selectProjects.addEventListener('change', addNew.listProj);
 
