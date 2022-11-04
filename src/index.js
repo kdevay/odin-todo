@@ -18,6 +18,9 @@ class List {
     this.priority = priority;
     this.items = items;
 }};
+// Add default file
+const misc = new Project ('Miscellaneous', []);
+projects.push(misc);
 
 // Add '+' icon
 const addIcon = document.createElement('img'); // Add new list/project
@@ -39,14 +42,32 @@ const page = {
     modal: document.getElementById('modal'),
     modalShadow: document.getElementById('modalShadow'),
     projectForm: document.getElementById('newProjForm'),
-    sidebar: document.getElementById('files'),
-    sideList: document.getElementsByClassName('sideList'),
-    sideProjects: document.getElementsByClassName('sideProjects'),
+    sidebar: { 
+        div: document.getElementById('files'),
+        sideList: document.getElementsByClassName('sideList'),
+        projectEvents(functionName) {
+            let projects = document.getElementsByClassName('sideProjects')
+            console.log('projects: ', projects);
+            for (let i = 0; i < projects.length; i++) {
+                console.log('projects ' + i + ' : ', projects[i]);
+                projects[i].addEventListener('click', functionName);
+            }
+        },
+        listEvents(functionName) {
+            let lists = document.getElementsByClassName('sideLists') 
+            console.log('lists: ', lists);
+            for (let i = 0; i < lists.length; i++) {
+                console.log('lists ' + i + ' : ', lists[i]);
+                lists[i].addEventListener('click', functionName);
+            }
+        }
+    },
     lvTile: {
-        lTitle: document.getElementbyId('LVListTitle'),
-        ldue: document.getElementbyId('LVdeadline'),
-        cCont: document.getElementbyId('LVCheckContainer'),
-        lCont: document.getElementbyId('LVListItems')
+        tile: document.getElementById('tile'),
+        lTitle: document.getElementById('LVListTitle'),
+        ldue: document.getElementById('LVdeadline'),
+        cCont: document.getElementById('LVCheckContainer'),
+        lCont: document.getElementById('LVListItems')
     },
     fields: { 
         projDropdown: document.getElementById('allProjects'),
@@ -85,7 +106,7 @@ const page = {
     clearForms() {
         page.listForm.reset();
         page.projectForm.reset();
-    }
+    },
 };
 
 // functions ////////////////////////////////////////////////////////
@@ -119,28 +140,105 @@ const display = { // Display appropriate form
         div.setAttribute('id', 'parent' + name);
         let project = document.createElement('h3');
         project.textContent = name;
-        project.setAttribute('class', 'sideProject');
+        project.setAttribute('class', 'sideProjects');
         project.setAttribute('id', name);
         // Add elements to dom
-        page.sidebar.appendChild(div);
+        page.sidebar.div.appendChild(div);
         div.appendChild(project);
+        // Update sidebar click events
+        page.sidebar.projectEvents(display.projectView);
     },
     listFile(listName, projectName) {
         // Logic for un-selected project Name
-        projectName ? projectName = projectName : projectName = 'Miscellaneous';
+        projectName ? projectName = projectName : projectName = 'miscellaneous';
         // Create p element
         let list = document.createElement('p');
         list.textContent = listName;
         list.setAttribute('data-id', projectName);
-        list.setAttribute('class', 'sideList');
+        list.setAttribute('class', 'sideLists');
         list.setAttribute('id', listName);
         // Get parent element
         let parent = document.getElementById('parent' + projectName);
         parent.appendChild(list);
-    }
+        // Update sidebar click events
+        page.sidebar.listEvents(display.listView);
+    },
     // else if (click edit)
         // load list tile into form areas
         // display edit form
+    listView(e) {
+        // Get list data
+        addNew.stopSub(e);
+        // Show lvTile
+        page.show(page.lvTile.tile);
+        let projectParentName = e.target.getAttribute('data-Id');
+        let listName = e.target.getAttribute('id');
+        // Set header contents
+        page.currentView.textContent = projectParentName + ' / ' + listName;
+        let projectParent;
+        let listData;
+        for (let i = 0; i < projects.length; i++){
+            if (projects[i].name === projectParentName){
+                projectParent = projects[i]
+                break;
+            }
+        }
+        for (let i = 0; i < projectParent.lists.length; i++) {
+            if (projectParent.lists[i] === listName) {
+                listData = projectParent.lists[i];
+            }
+        }
+        page.lvTile.lTitle.textContent = listData.name;
+        page.lvTile.ldue.textContent = listData.dueDate;
+        for (let i = 0; i < listData.items.length; i++) {
+            //Dynamically create list and checkboxes
+            let tempCheck = document.createElement('input');
+            tempCheck.setAttribute('type', 'checkbox');
+            tempCheck.setAttribute('class', 'checkbox');
+            tempCheck.setAttribute('name', 'listIndex' + i);
+            let tempItem = document.createElement('p');
+            tempItem.setAttribute('class', 'listItem');
+            tempItem.setAttribute('id', 'listIndex' + i);
+            // Add to dom
+            page.lvTile.cCont.appendChild(placeholder);
+            page.lvTile.lCont.appendChild(placeholder);
+        }
+    },
+
+    projectView(e){
+        addNew.stopSub(e);
+        let projectName = e.target.getAttribute('id');
+        page.currentView.textContent = projectName // Set header contents
+        let projectObj; // Get project object
+        for (let i = 0; i < projects.length; i++){
+            if (projects[i].name === projectName){
+                projectObj = projects[i]
+                break;
+            }
+        }
+        for (let i = 0; i < projectObj.lists.length; i++) {
+            // dynamically create PVTile tiles
+            let tile = document.createElement('div');
+            tile.setAttribute('class', 'PVTile');
+            let headingDiv = document.createElement('div');
+            headingDiv.setAttribute('class', 'headingContainer');
+            let listTitle = document.createElement('h2');
+            listTitle.setAttribute('class', 'listTitle');
+            listTitle.textContent = projectObj.lists[i].name;
+            let deadline = document.createElement('h5');
+            deadline.setAttribute('class', 'deadline');
+            deadline.textContent = 'Due: ' + projectObj.lists[i].dueDate;
+            let priority = document.createElement('h5');
+            priority.setAttribute('class', 'deadline');
+            priority.textContent = 'Priority: ' + projectObj.lists[i].priority;
+
+            page.content.appendChild(tile);
+            tile.appendChild(headingDiv);
+            headingDiv.appendChild(listTitle);
+            headingDiv.appendChild(deadline);
+            headingDiv.appendChild(priority);
+        }
+    }
 };
 
 
@@ -247,7 +345,7 @@ const addNew = {
             // Add new project to dropdown form, projects array & update DOM
             addNew.dropProj(projectName)
             projects.push(new Project (projectName, []));
-            projectFile(projectName); 
+            display.projectFile(projectName); 
 
         } else { // Get project value from dropdown menu
             for (let i = 0; i < page.fields.projDropdown.length; i++) {
@@ -287,85 +385,12 @@ const addNew = {
         parentProject.lists.push(list);
 
         // Add list to DOM & reset list counter
-        display.listFile(listName, projectName)
+        display.listFile(listName, projectName);
         page.listCounter = 1;
         // Replace dropdown element & reset to default view
         page.show(page.buttons.selectProjects);
         page.clearForms();
         page.hideAll();
-    },
-
-    listView(e) {
-        // Get list data
-        addNew.stopSub(e);
-        let projectParentName = e.target.getAttribute('data-Id');
-        let listName = e.target.getAttribute('id');
-        // Set header contents
-        page.currentView.textContent = projectParentName + ' / ' + listName;
-        let projectParent;
-        let listData;
-        for (let i = 0; i < projects.length; i++){
-            if (projects[i].name === projectParentName){
-                projectParent = projects[i]
-                break;
-            }
-        }
-        for (let i = 0; i < projectParent.lists.length; i++) {
-            if (projectParent.lists[i] === listName) {
-                listData = projectParent.lists[i];
-            }
-        }
-        page.lvTile.lTitle.textContent = listData.name;
-        page.lvTile.ldue.textContent = listData.dueDate;
-        for (let i = 0; i < listData.items.length; i++) {
-            //Dynamically create list and checkboxes
-            let tempCheck = document.createElement('input');
-            tempCheck.setAttribute('type', 'checkbox');
-            tempCheck.setAttribute('class', 'checkbox');
-            tempCheck.setAttribute('name', 'listIndex' + i);
-            let tempItem = document.createElement('p');
-            tempItem.setAttribute('class', 'listItem');
-            tempItem.setAttribute('id', 'listIndex' + i);
-            // Add to dom
-            page.lvTile.cCont.appendChild(placeholder);
-            page.lvTile.lCont.appendChild(placeholder);
-        }
-    },
-
-    projectView(e){
-        addNew.stopSub(e);
-        let projectName = e.target.getAttribute('id');
-        page.currentView.textContent = projectName // Set header contents
-        let projectObj; // Get project object
-        for (let i = 0; i < projects.length; i++){
-            if (projects[i].name === projectName){
-                projectObj = projects[i]
-                break;
-            }
-        }
-        for (let i = 0; i < projectObj.lists.length; i++) {
-            // dynamically create PVTile tiles
-            let tile = document.createElement('div');
-            tile.setAttribute('class', 'PVTile');
-            let headingDiv = document.createElement('div');
-            headingDiv.setAttribute('class', 'headingContainer');
-            let listTitle = document.createElement('h2');
-            listTitle.setAttribute('class', 'listTitle');
-            listTitle.textContent = projectObj.lists[i].name;
-            let deadline = document.createElement('h5');
-            deadline.setAttribute('class', 'deadline');
-            deadline.textContent = 'Due: ' + projectObj.lists[i].dueDate;
-            let priority = document.createElement('h5');
-            priority.setAttribute('class', 'deadline');
-            priority.textContent = 'Priority: ' + projectObj.lists[i].priority;
-
-            page.content.appendChild(tile);
-            tile.appendChild(headingDiv);
-            headingDiv.appendChild(listTitle);
-            headingDiv.appendChild(deadline);
-            headingDiv.appendChild(priority);
-        }
-
     }
 };
 
@@ -379,18 +404,9 @@ page.buttons.addItems.addEventListener('click', addNew.listItem);
 page.buttons.addList.addEventListener('click', addNew.list);
 page.buttons.addProject.addEventListener('click', addNew.project);
 page.buttons.selectProjects.addEventListener('change', addNew.listProj);
-// sidebar buttons
-for (let i = 0; i < page.sideList.length; i++) {
-    page.sideList[i].addEventListener('click', display.listView);
-}
-// page.sideProjects[i]
-for (let i = 0; i < page.sideProjects.length; i++) {
-    page.sideProjects[i].addEventListener('click', display.projectView);
-}
+
 // Set Defaults
 page.hideAll();
-
-
 
 // function applyEdit(e) {
 //     // update list item

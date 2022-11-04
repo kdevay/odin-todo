@@ -163,7 +163,7 @@ select{
     padding: 4vh 3vw;
 }
 .tile {
-    display: grid;
+    display: none;
     grid-template: 70px 1fr / 1fr 10fr;
     background-color: rgb(28, 30, 30);
     min-width: 200px;
