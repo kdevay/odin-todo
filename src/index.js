@@ -150,7 +150,8 @@ const display = { // Display appropriate form
     },
     listFile(listName, projectName) {
         // Logic for un-selected project Name
-        projectName ? projectName = projectName : projectName = 'miscellaneous';
+        console.log('projectName: ', projectName);
+        projectName ? projectName = projectName : projectName = 'Miscellaneous';
         // Create p element
         let list = document.createElement('p');
         list.textContent = listName;
@@ -174,23 +175,27 @@ const display = { // Display appropriate form
         let projectParentName = e.target.getAttribute('data-Id');
         let listName = e.target.getAttribute('id');
         // Set header contents
-        page.currentView.textContent = projectParentName + ' / ' + listName;
-        let projectParent;
+        page.currentView.textContent = projectParentName + '  /  ' + listName;
+        let projectObj;
         let listData;
         for (let i = 0; i < projects.length; i++){
             if (projects[i].name === projectParentName){
-                projectParent = projects[i]
+                projectObj = projects[i];
                 break;
             }
         }
-        for (let i = 0; i < projectParent.lists.length; i++) {
-            if (projectParent.lists[i] === listName) {
-                listData = projectParent.lists[i];
+        console.log('projectObj: ', projectObj);
+        for (let i = 0; i < projectObj.lists.length; i++) {
+            if (projectObj.lists[i].name === listName) {
+                listData = projectObj.lists[i];
+                break;
             }
         }
+        console.log('listData: ', listData);
         page.lvTile.lTitle.textContent = listData.name;
         page.lvTile.ldue.textContent = listData.dueDate;
         for (let i = 0; i < listData.items.length; i++) {
+            console.log('listData.items[i]: ', listData.items[i])
             //Dynamically create list and checkboxes
             let tempCheck = document.createElement('input');
             tempCheck.setAttribute('type', 'checkbox');
@@ -199,9 +204,10 @@ const display = { // Display appropriate form
             let tempItem = document.createElement('p');
             tempItem.setAttribute('class', 'listItem');
             tempItem.setAttribute('id', 'listIndex' + i);
+            tempItem.textContent = listData.items[i];
             // Add to dom
-            page.lvTile.cCont.appendChild(placeholder);
-            page.lvTile.lCont.appendChild(placeholder);
+            page.lvTile.cCont.appendChild(tempCheck);
+            page.lvTile.lCont.appendChild(tempItem);
         }
     },
 
