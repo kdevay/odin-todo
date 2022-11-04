@@ -62,13 +62,6 @@ const page = {
             }
         }
     },
-    lvTile: {
-        tile: document.getElementById('tile'),
-        lTitle: document.getElementById('LVListTitle'),
-        ldue: document.getElementById('LVdeadline'),
-        cCont: document.getElementById('LVCheckContainer'),
-        lCont: document.getElementById('LVListItems')
-    },
     fields: { 
         projDropdown: document.getElementById('allProjects'),
         listName: document.getElementById('listName'),
@@ -89,12 +82,12 @@ const page = {
     }, 
     show(element) { // TODO: add language for grid containers
         console.log('show element: ', element);
-        element === this.lvTile.tile ? element.style.display = 'grid' : element.style.display = 'flex';
+        element.getAttribute('class') === 'tile' ? element.style.display = 'grid' : element.style.display = 'flex';
     },
     hide(element) {
         element.style.display =  'none';
     },
-    hideAll() {
+    hideAll() { //TODO: add language for hiding all container with tile class
         this.hide(this.errorL);
         this.hide(this.errorP);
         this.hide(this.modal);
@@ -111,6 +104,37 @@ const page = {
 };
 
 // functions ////////////////////////////////////////////////////////
+const get = {
+    list(name, parentProject) {
+        for (let i = 0; i < parentProject.lists.length; i++) {
+            if (parentProject.lists[i].name === name) {
+                return parentProject.lists[i];
+            }
+        }
+    },
+    project(name) {
+        for (let i = 0; i < projects.length; i++){
+            if (projects[i].name === name){
+                return projectObj = projects[i];
+            }
+        }
+    }
+};
+
+const update = {
+    isCheckedStatus(e) {
+        let checked; // Check if box is checked
+        e.target.checked ? checked = true : checked = false;
+        // Get project to get list to get list item
+        let projectObject = get.project(e.target.getAttribute('data-id'));
+        let nameID = e.target.getAttribute('name');
+        let listName = nameId.slice(0, (nameId.length - 1));
+        let itemIndex = nameId.slice(nameId.length - 1);
+        let listObject = (listName, projectObject);
+        listObject[itemIndex].isChecked = checked; // Update check status
+    }
+};
+
 const display = { // Display appropriate form
     shadow() {
         // Close all forms on shadow click
@@ -143,7 +167,7 @@ const display = { // Display appropriate form
         project.textContent = name;
         project.setAttribute('class', 'sideProjects');
         project.setAttribute('id', name);
-        // Add elements to dom
+        // Add elements to DOM
         page.sidebar.div.appendChild(div);
         div.appendChild(project);
         // Update sidebar click events
@@ -169,62 +193,72 @@ const display = { // Display appropriate form
         // load list tile into form areas
         // display edit form
     listView(e) {
-        // Get list data
+        // Get button data
         addNew.stopSub(e);
-        // Show lvTile
-        page.show(page.lvTile.tile);
+        page.hideAll();
         let projectParentName = e.target.getAttribute('data-Id');
         let listName = e.target.getAttribute('id');
         // Set header contents
         page.currentView.textContent = projectParentName + '  /  ' + listName;
-        let projectObj;
-        let listData;
-        for (let i = 0; i < projects.length; i++){
-            if (projects[i].name === projectParentName){
-                projectObj = projects[i];
-                break;
-            }
-        }
-        console.log('projectObj: ', projectObj);
-        for (let i = 0; i < projectObj.lists.length; i++) {
-            if (projectObj.lists[i].name === listName) {
-                listData = projectObj.lists[i];
-                break;
-            }
-        }
-        console.log('listData: ', listData);
-        page.lvTile.lTitle.textContent = listData.name;
-        page.lvTile.ldue.textContent = listData.dueDate;
+        // Get project object and list data
+        let projectObj = get.project(projectParentName);
+        let listData = get.list(listName, projectObj);
+
+        // Dynamically create tile
+        const tile = document.createElement('div');
+        tile.setAttribute('class', 'tile')
+        page.content.appendChild(tile);
+        const tileTop = document.createElement('div');
+        tileTop.setAttribute('class', 'tileTop')
+        tile.appendChild(tileTop);
+        const headCont = document.createElement('div');
+        headCont.setAttribute('class', 'headContainer')
+        tileTop.appendChild(headCont)
+        const name = document.createElement('h2');
+        name.setAttribute('class', 'listTitle')
+        name.textContent = listName;
+        const due = document.createElement('h5');
+        due.setAttribute('class', 'deadline')
+        due.textContent = listData.dueDate;
+        headCont.appendChild(name);
+        headCont.appendChild(due);
+        const checkCont = document.createElement('div');
+        checkCont.setAttribute('class', 'checkContainer')
+        const listItems = document.createElement('div');
+        listItems.setAttribute('class', 'listItems')
+        tile.appendChild(checkCont);
+        tile.appendChild(listItems);
+
+        //Dynamically create list and checkboxes
         for (let i = 0; i < listData.items.length; i++) {
-            console.log('listData.items[i]: ', listData.items[i])
-            //Dynamically create list and checkboxes
             let tempCheck = document.createElement('input');
             tempCheck.setAttribute('type', 'checkbox');
             tempCheck.setAttribute('class', 'checkbox');
-            tempCheck.setAttribute('name', 'listIndex' + i);
+            tempCheck.setAttribute('name', listName + i);
+            tempCheck.setAttribute('data-id', projectParentName);
+            if (listData.items[i].isChecked) {
+                tempCheck.checked = true;
+            }
+            tempCheck.addEventListener("change", update.isCheckedStatus);
             let tempItem = document.createElement('p');
             tempItem.setAttribute('class', 'listItem');
             tempItem.setAttribute('id', 'listIndex' + i);
             tempItem.textContent = listData.items[i];
-            // Add to dom
-            page.lvTile.cCont.appendChild(tempCheck);
-            page.lvTile.lCont.appendChild(tempItem);
+            // Add to DOM
+            checkCont.appendChild(tempCheck);
+            listItems.appendChild(tempItem);
         }
+        page.show(tile);
     },
 
     projectView(e){
         addNew.stopSub(e);
         let projectName = e.target.getAttribute('id');
         page.currentView.textContent = projectName // Set header contents
-        let projectObj; // Get project object
-        for (let i = 0; i < projects.length; i++){
-            if (projects[i].name === projectName){
-                projectObj = projects[i]
-                break;
-            }
-        }
+        let projectObj = get.project(projectName); // Get project object
+
         for (let i = 0; i < projectObj.lists.length; i++) {
-            // dynamically create PVTile tiles
+            // dynamically create PVTile tile
             let tile = document.createElement('div');
             tile.setAttribute('class', 'PVTile');
             let headingDiv = document.createElement('div');
@@ -238,7 +272,7 @@ const display = { // Display appropriate form
             let priority = document.createElement('h5');
             priority.setAttribute('class', 'deadline');
             priority.textContent = 'Priority: ' + projectObj.lists[i].priority;
-
+            // Add tile to DOM
             page.content.appendChild(tile);
             tile.appendChild(headingDiv);
             headingDiv.appendChild(listTitle);
@@ -281,7 +315,7 @@ const addNew = {
         addNew.stopSub(e);
         // increment list counter
         page.listCounter++;
-        // Add li and nested input to dom
+        // Add li and nested input to DOM
         let tempLI = document.createElement('li');
         let tempInput = document.createElement('input');
         tempInput.setAttribute('class', 'formItem')
@@ -377,7 +411,9 @@ const addNew = {
 
         // Get list array values from list elements array
         for (let i = 0; i < elements.length; i++) { 
-            items.push(elements[i].value);
+            let tempItem = elements[i].value;
+            tempItem.isChecked = false;
+            items.push(tempItem);
         }
         // Get priority value from dropdown
         for (let i = 0; i < page.fields.priority.length; i++) {
