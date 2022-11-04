@@ -42,26 +42,7 @@ const page = {
     modal: document.getElementById('modal'),
     modalShadow: document.getElementById('modalShadow'),
     projectForm: document.getElementById('newProjForm'),
-    sidebar: { 
-        div: document.getElementById('files'),
-        sideList: document.getElementsByClassName('sideList'),
-        projectEvents(functionName) {
-            let projects = document.getElementsByClassName('sideProjects')
-            console.log('projects: ', projects);
-            for (let i = 0; i < projects.length; i++) {
-                console.log('projects ' + i + ' : ', projects[i]);
-                projects[i].addEventListener('click', functionName);
-            }
-        },
-        listEvents(functionName) {
-            let lists = document.getElementsByClassName('sideLists') 
-            console.log('lists: ', lists);
-            for (let i = 0; i < lists.length; i++) {
-                console.log('lists ' + i + ' : ', lists[i]);
-                lists[i].addEventListener('click', functionName);
-            }
-        }
-    },
+    sidebar: document.getElementById('files'),
     fields: { 
         projDropdown: document.getElementById('allProjects'),
         listName: document.getElementById('listName'),
@@ -81,13 +62,12 @@ const page = {
         selectProjects: document.getElementById('allProjects'),
     }, 
     show(element) { // TODO: add language for grid containers
-        console.log('show element: ', element);
         element.getAttribute('class') === 'tile' ? element.style.display = 'grid' : element.style.display = 'flex';
     },
     hide(element) {
         element.style.display =  'none';
     },
-    hideAll() { //TODO: add language for hiding all container with tile class
+    hideAll() { 
         this.hide(this.errorL);
         this.hide(this.errorP);
         this.hide(this.modal);
@@ -96,6 +76,16 @@ const page = {
         this.hide(this.projectForm);
         this.hide(this.listForm);
         this.hide(this.fields.lProjectName);
+    },
+    orphan(elements){
+        let length = elements.length;
+        if (!length){
+            return;
+        }
+        length--;
+        for (let i = length; i >= 0; i--) {
+            this.content.removeChild(elements[i]);
+        }
     },
     clearForms() {
         page.listForm.reset();
@@ -115,7 +105,7 @@ const get = {
     project(name) {
         for (let i = 0; i < projects.length; i++){
             if (projects[i].name === name){
-                return projectObj = projects[i];
+                return projects[i];
             }
         }
     }
@@ -128,10 +118,10 @@ const update = {
         // Get project to get list to get list item
         let projectObject = get.project(e.target.getAttribute('data-id'));
         let nameID = e.target.getAttribute('name');
-        let listName = nameId.slice(0, (nameId.length - 1));
-        let itemIndex = nameId.slice(nameId.length - 1);
-        let listObject = (listName, projectObject);
-        listObject[itemIndex].isChecked = checked; // Update check status
+        let listName = nameID.slice(0, (nameID.length - 1));
+        let itemIndex = nameID.slice(nameID.length - 1);
+        let listObject = get.list(listName, projectObject);
+        listObject.items[itemIndex].isChecked = checked; // Update check status
     }
 };
 
@@ -167,15 +157,13 @@ const display = { // Display appropriate form
         project.textContent = name;
         project.setAttribute('class', 'sideProjects');
         project.setAttribute('id', name);
+        project.addEventListener('click', this.projectView);
         // Add elements to DOM
-        page.sidebar.div.appendChild(div);
+        page.sidebar.appendChild(div);
         div.appendChild(project);
-        // Update sidebar click events
-        page.sidebar.projectEvents(display.projectView);
-    },
+    },              
     listFile(listName, projectName) {
         // Logic for un-selected project Name
-        console.log('projectName: ', projectName);
         projectName ? projectName = projectName : projectName = 'Miscellaneous';
         // Create p element
         let list = document.createElement('p');
@@ -183,16 +171,20 @@ const display = { // Display appropriate form
         list.setAttribute('data-id', projectName);
         list.setAttribute('class', 'sideLists');
         list.setAttribute('id', listName);
+        list.addEventListener('click', this.listView);
         // Get parent element
         let parent = document.getElementById('parent' + projectName);
         parent.appendChild(list);
-        // Update sidebar click events
-        page.sidebar.listEvents(display.listView);
     },
     // else if (click edit)
         // load list tile into form areas
         // display edit form
     listView(e) {
+        // Orphan all tiles
+        console.log('entered listView');
+        page.orphan(document.getElementsByClassName('tile'));
+        page.orphan(document.getElementsByClassName('PVTile'));
+
         // Get button data
         addNew.stopSub(e);
         page.hideAll();
@@ -243,22 +235,26 @@ const display = { // Display appropriate form
             let tempItem = document.createElement('p');
             tempItem.setAttribute('class', 'listItem');
             tempItem.setAttribute('id', 'listIndex' + i);
-            tempItem.textContent = listData.items[i];
+            tempItem.textContent = listData.items[i].name;
             // Add to DOM
             checkCont.appendChild(tempCheck);
             listItems.appendChild(tempItem);
         }
         page.show(tile);
     },
-
     projectView(e){
+        console.log('entered projectView');
+        // Orphan all tiles
+        page.orphan(document.getElementsByClassName('tile'));
+        page.orphan(document.getElementsByClassName('PVTile'));
+
         addNew.stopSub(e);
         let projectName = e.target.getAttribute('id');
         page.currentView.textContent = projectName // Set header contents
         let projectObj = get.project(projectName); // Get project object
-
+        // dynamically create PVTiles
         for (let i = 0; i < projectObj.lists.length; i++) {
-            // dynamically create PVTile tile
+            // Ceate tile elements
             let tile = document.createElement('div');
             tile.setAttribute('class', 'PVTile');
             let headingDiv = document.createElement('div');
@@ -399,11 +395,8 @@ const addNew = {
         }
 
         // Find project with this name
-        for (let i = 0; i < projects.length; i++) {
-            if (projects[i].name === projectName) { 
-                parentProject = projects[i];
-            }
-        }
+        parentProject = get.project(projectName);
+
         // validate listName name(name, formType, datumType)
         if (!validate.name(listName, parentProject.lists, 'list', 'list')){ // failed
             return;
@@ -412,8 +405,7 @@ const addNew = {
         // Get list array values from list elements array
         for (let i = 0; i < elements.length; i++) { 
             let tempItem = elements[i].value;
-            tempItem.isChecked = false;
-            items.push(tempItem);
+            items.push({name: tempItem, isChecked: false});
         }
         // Get priority value from dropdown
         for (let i = 0; i < page.fields.priority.length; i++) {
@@ -450,6 +442,7 @@ page.buttons.selectProjects.addEventListener('change', addNew.listProj);
 
 // Set Defaults
 page.hideAll();
+display.projectFile(misc.name);
 // TODO: hide files on initial page load
 
 // function applyEdit(e) {
