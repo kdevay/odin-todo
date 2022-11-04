@@ -87,8 +87,9 @@ const page = {
         addLP: document.getElementById('listToNewProject'),
         selectProjects: document.getElementById('allProjects'),
     }, 
-    show(element) {
-        element.style.display = 'flex';
+    show(element) { // TODO: add language for grid containers
+        console.log('show element: ', element);
+        element === this.lvTile.tile ? element.style.display = 'grid' : element.style.display = 'flex';
     },
     hide(element) {
         element.style.display =  'none';
@@ -413,6 +414,7 @@ page.buttons.selectProjects.addEventListener('change', addNew.listProj);
 
 // Set Defaults
 page.hideAll();
+// TODO: hide files on initial page load
 
 // function applyEdit(e) {
 //     // update list item
