@@ -1,5 +1,5 @@
-// TODO: 
-// "-" button (orphan list items) 
+// TODO: x
+// reset list items in list form to default amount
 // edit button
 // edit form  w/ save + delete buttons
 // local storage save
@@ -149,11 +149,20 @@ const display = { // Display appropriate form
         page.show(page.projectForm); // Display Project form
     },
     listForm() { // On '+list' button click,
-        // Display modal & hide dropdown buttons
-        // page.show(page.modal);
+        // Hide shadow & dropdown buttons
         page.hide(page.modalShadow);
         page.hide(page.dropdownCont);
-        page.show(page.listForm); // Display List form
+
+        // Orphan additional list items from previous list
+        while (page.listCounter > 1){
+            // Orphan last added list item 
+            let lastItem = document.getElementById('li' + page.listCounter);
+            page.listItemsOL.removeChild(lastItem);
+            page.listCounter--; // decrement list counter
+        }
+
+        // Display List form
+        page.show(page.listForm); 
     },
     projectFile(name) {
         // Create Div and heading elements
@@ -220,15 +229,15 @@ const display = { // Display appropriate form
         due.textContent = listData.dueDate;
         headCont.appendChild(name);
         headCont.appendChild(due);
-        const checkCont = document.createElement('div');
+
+        const checkCont = document.createElement('ol');
         checkCont.setAttribute('class', 'checkContainer')
-        const listItems = document.createElement('div');
-        listItems.setAttribute('class', 'listItems')
         tile.appendChild(checkCont);
-        tile.appendChild(listItems);
 
         //Dynamically create list and checkboxes
         for (let i = 0; i < listData.items.length; i++) {
+            let tempLi = document.createElement('li');
+            tempLi.setAttribute('class', 'lvcheckItem');
             let tempCheck = document.createElement('input');
             tempCheck.setAttribute('type', 'checkbox');
             tempCheck.setAttribute('class', 'checkbox');
@@ -243,8 +252,9 @@ const display = { // Display appropriate form
             tempItem.setAttribute('id', 'listIndex' + i);
             tempItem.textContent = listData.items[i].name;
             // Add to DOM
-            checkCont.appendChild(tempCheck);
-            listItems.appendChild(tempItem);
+            checkCont.appendChild(tempLi);
+            tempLi.appendChild(tempCheck);
+            tempLi.appendChild(tempItem);
         }
         page.show(tile);
     },
@@ -441,9 +451,9 @@ const addNew = {
         let list = new List (listName, dueDate, priority, items);
         parentProject.lists.push(list);
 
-        // Add list to DOM & reset list counter
+        // Add list to DOM 
         display.listFile(listName, projectName);
-        page.listCounter = 1;
+
         // Replace dropdown element & reset to default view
         page.show(page.buttons.selectProjects);
         page.clearForms();

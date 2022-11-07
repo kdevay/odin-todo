@@ -197,12 +197,12 @@ select{
 .tile {
     /* display: grid; */
     display: none;
-    grid-template: 70px 1fr / 1fr 10fr;
+    grid-template: 35px 1fr / 1fr 10fr;
     background-color: rgb(28, 30, 30);
     min-width: 200px;
     min-height: 200px;
     max-width: 400px;
-    max-height: 400px;
+    max-height: auto;
     border-radius: 20px;
     padding: 20px;
 }
@@ -228,11 +228,21 @@ input.checkbox{
     border: none;
 }
 .checkContainer {
-    grid-area: 2 / 1 / 3 / 2;
+    grid-area: 2 / 1 / 3 / 3;
     display: grid;
     grid-template: repeat(auto-fit, minmax(20px, 1fr)) / 1fr;
-    justify-content: space-between;
-    align-items: flex-start;
+    justify-content: start;
+    align-items: center;
+    padding-inline-start: 0px;
+    gap: 10px;
+
+}
+.lvcheckItem {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    align-content: center;
 }
 .listItems {
     grid-area: 2 / 2 / 3 / 3;
