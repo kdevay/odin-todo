@@ -1,3 +1,8 @@
+// TODO: 
+// "-" button (orphan list items) 
+// edit button
+// edit form  w/ save + delete buttons
+// local storage save
 import './style.css';
 import './normalize.css';
 import Add from './add.png';
@@ -56,6 +61,7 @@ const page = {
         displayPForm: document.getElementById('displayProjectForm'),
         displayLForm: document.getElementById('displayListForm'),
         addItems: document.getElementById('addItems'),
+        rmItems: document.getElementById('rmItems'),
         addList: document.getElementById('addList'),
         addProject: document.getElementById('addProject'),
         addLP: document.getElementById('listToNewProject'),
@@ -92,7 +98,7 @@ const page = {
         page.projectForm.reset();
     },
 };
-
+//repeat(auto-fit, minmax(15px))/ repeat(auto-fit, 1fr));
 // functions ////////////////////////////////////////////////////////
 const get = {
     list(name, parentProject) {
@@ -126,7 +132,7 @@ const update = {
 };
 
 const display = { // Display appropriate form
-    shadow() {
+    shadowClick() {
         // Close all forms on shadow click
         page.hideAll();
         page.clearForms();
@@ -144,8 +150,8 @@ const display = { // Display appropriate form
     },
     listForm() { // On '+list' button click,
         // Display modal & hide dropdown buttons
-        page.show(page.modal);
-        page.show(page.modalShadow);
+        // page.show(page.modal);
+        page.hide(page.modalShadow);
         page.hide(page.dropdownCont);
         page.show(page.listForm); // Display List form
     },
@@ -306,19 +312,35 @@ const addNew = {
     e.preventDefault();
     },
 
-    //  Add List item
+    //  Add list item
     listItem(e) {
         addNew.stopSub(e);
         // increment list counter
         page.listCounter++;
         // Add li and nested input to DOM
         let tempLI = document.createElement('li');
+        tempLI.setAttribute('id', 'li' + page.listCounter);
         let tempInput = document.createElement('input');
         tempInput.setAttribute('class', 'formItem')
         tempInput.setAttribute('type', 'text')
         tempInput.setAttribute('id', 'listItem' + page.listCounter)
         tempLI.appendChild(tempInput);
         page.listItemsOL.appendChild(tempLI);
+    },
+
+    // Remove list item
+    rmListItem (e) { 
+        addNew.stopSub(e);
+        // Ensure minimum list length
+        if (page.listCounter < 2) {
+            return;
+        }
+        // Find last added list item 
+        let lastItem = document.getElementById('li' + page.listCounter);
+        console.log('lastItem: ', lastItem);
+        // Orphan last list item
+        page.listItemsOL.removeChild(lastItem);
+        page.listCounter--;
     },
 
     // Selected new project in new list form
@@ -431,11 +453,12 @@ const addNew = {
 
 
 // Events ////////////////////////////////////////////////////////
-page.modalShadow.addEventListener('click', display.shadow);
+page.modalShadow.addEventListener('click', display.shadowClick);
 page.buttons.add.addEventListener('click', display.add);
 page.buttons.displayPForm.addEventListener('click', display.projectForm);
 page.buttons.displayLForm.addEventListener('click', display.listForm);
 page.buttons.addItems.addEventListener('click', addNew.listItem);
+page.buttons.rmItems.addEventListener('click', addNew.rmListItem); 
 page.buttons.addList.addEventListener('click', addNew.list);
 page.buttons.addProject.addEventListener('click', addNew.project);
 page.buttons.selectProjects.addEventListener('change', addNew.listProj);

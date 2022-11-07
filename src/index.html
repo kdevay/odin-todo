@@ -14,7 +14,7 @@
         <div id="modalShadow"></div>
         <div id="modal"> 
             <!-- new project -->
-            <form class="form" id="newProjForm">
+            <form class="pform" id="newProjForm">
                 <h2 class="listTitle">Create New Project</h2>
                 <div>
                     <label for="projName">Project Name: </label>
@@ -24,16 +24,22 @@
                 <button class="fsubmit" type="submit" id="addProject">Add Project</button>
             </form>
             
-            <!-- new list -->
+            <!-- new list
             <form class="form" id="newListForm">
                 <h2 class="listTitle">Create New List</h2>
-                <div>
+                <div class="dropsCont">
                     <select name="allProjects" id="allProjects">
                         <option value="" disabled selected>Choose a project:</option>
                         <option value="misc">Miscellaneous</option> 
                         <option value="newProject">New project</option>
                     </select>
                     <input type="text" id="lFormProjName" placeholder="Project Name">
+                    <select name="priority" id="priority">
+                        <option value="" disabled selected>Priority:</option>
+                        <option value="high">high</option> 
+                        <option value="normal">normal</option> 
+                        <option value="low">low</option>
+                    </select>
                 </div>
                 <div>
                     <input type="text" id="listName" placeholder="List Title">
@@ -42,20 +48,12 @@
                 <div>
                     <input type="text" id="dueDate" placeholder="Due Date">
                 </div>
-                <div>
-                    <select name="priority" id="priority">
-                        <option value="" disabled selected>Priority:</option>
-                        <option value="high">high</option> 
-                        <option value="normal">normal</option> 
-                        <option value="low">low</option>
-                    </select>
-                </div>
                 <ol id="formListItems">
                     <li><input class="formItem" type="text" id="listItem1"></li>
                 </ol>
                 <button id="addItems" data-id="1"> + </button>
                 <button class="fsubmit" type="submit" id="addList">Add List</button>
-            </form>
+            </form> -->
             <!-- are you sure message for deletion (?) -->
         </div>
         <div id="top"> 
@@ -76,7 +74,40 @@
             </div>
 
         </div>
-        <div id="content"></div>
+        <div id="content">
+            <!-- new list -->
+            <form class="form" id="newListForm">
+                <h2 class="listTitle">Create New List</h2>
+                <div class="dropsCont">
+                    <select name="allProjects" id="allProjects">
+                        <option value="" disabled selected>Choose a project:</option>
+                        <option value="misc">Miscellaneous</option> 
+                        <option value="newProject">New project</option>
+                    </select>
+                    <input type="text" id="lFormProjName" placeholder="Project Name">
+                    <select name="priority" id="priority">
+                        <option value="" disabled selected>Priority:</option>
+                        <option value="high">high</option> 
+                        <option value="normal">normal</option> 
+                        <option value="low">low</option>
+                    </select>
+                    <input type="text" id="dueDate" placeholder="Due Date">
+                </div>
+                <div class="dropsCont">
+                    <input type="text" id="listName" placeholder="List Title">
+                    <div class="addRmCont">
+                        <button class="addRmItems" id="addItems"> + </button>
+                        <p class="addRmLabel">tasks</p>
+                        <button class="addRmItems" id="rmItems"> — </button>
+                    </div>
+                    <p id="listNameError" class="error"></p>
+                </div>
+                <ol id="formListItems">
+                    <li><input class="formItem" type="text" id="listItem1"></li>
+                </ol>
+                <button class="fsubmit" type="submit" id="addList">Add List</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>

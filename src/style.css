@@ -21,13 +21,13 @@ select{
 
 #modalShadow {
     display: none;
-    position: fixed; /* Stay in place */
+    position: absolute; /* Stay in place */
     z-index: 1; /* Sit on top */
-    left: 0;
     top: 0;
-    width: 100vw; /* Full width */
-    height: 100vh; /* Full height */
-    overflow: hidden; /* Enable scroll if needed */
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity */
     /* display: flex; */
@@ -40,44 +40,75 @@ select{
     padding: 20px;
     min-height: 200px;
     width: 50vw;
-    margin: 25vh 20vw 0 25vw;
-    border-radius: 8px;
-    box-shadow: 10px 9px 14px 7px rgb(8 8 8);
+    margin: 10vh 20vw 0 25vw;
+    border-radius: 30px;
     display: none;
     /* display: flex; */
-    position: fixed; /* Stay in place */
+    position: fixed;
     z-index: 2; /* Sit on top */
     flex-direction: column;
     align-content: center;
     align-items: center;
     justify-content: center;
 }
-.form {
+.pform {
     flex-direction: column;
-    width: 90%;
+    border-radius: 30px;
     gap: 20px;
 }
-.formItem{
+.form {
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    background-color: #373a39;
+    padding: 30px;
+    border-radius: 29px;
+    gap: 20px;
+}
+.dropsCont {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+#formListItems {
+    display:flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    max-height: 390px;
+}
+.formItem {
     margin: 0 0 5px 0;
 }
 #lFormProjName {
     display: none;
 }
-#addItems {
-    padding: 5px;
+.addRmCont {
+    display: flex;
+    align-items: center;
+}
+#rmItems {
+    font-size: 11px;
+    font-weight: bold;
+}
+.addRmLabel {
+    margin: 0 20px 0 20px;
+}
+.addRmItems {
     width: 29px;
+    height: 29px;;
     background-color: white;
     color: black;
     border: none;
+    border-radius: 15px;
 }
-#addItems:hover {
+.addRmItems:hover {
     padding: 4px;
     background-color: black;
     color: white;
     border: 1px solid white;
     cursor: pointer;
 }
-.fsubmit{
+.fsubmit {
     border: none;
     background-color: white;
     color: black;
@@ -186,8 +217,8 @@ input.checkbox{
 }
 .tileTop {
     grid-area: 1 / 1 / 2 / 3;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template: repeat(auto-fit, minmax(20px, 1fr)) / 1fr;
     justify-content: space-between;
     align-items: flex-start;
 }
@@ -198,10 +229,10 @@ input.checkbox{
 }
 .checkContainer {
     grid-area: 2 / 1 / 3 / 2;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 100%;
+    display: grid;
+    grid-template: repeat(auto-fit, minmax(20px, 1fr)) / 1fr;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 .listItems {
     grid-area: 2 / 2 / 3 / 3;
