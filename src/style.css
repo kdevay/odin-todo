@@ -222,7 +222,7 @@ input.checkbox{
     justify-content: space-between;
     align-items: flex-start;
 }
-#edit {
+#edit { /* may delete later idk */
     background-color: rgb(28, 30, 30);
     font-size: 16px;
     border: none;

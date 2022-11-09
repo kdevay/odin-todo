@@ -23,37 +23,18 @@
                 </div>
                 <button class="fsubmit" type="submit" id="addProject">Add Project</button>
             </form>
+            <!-- edit project -->
+            <form class="pform" id="editProjForm">
+                <h2 class="listTitle">Edit Project</h2>
+                <div>
+                    <label for="editProjName">Project Name: </label>
+                    <input type="text" id="editProjName">
+                    <p id="editProjNameError" class="error"></p>
+                </div>
+                <button class="psubmit" type="submit" id="editProject">Edit Project</button>
+                <button class="psubmit" id="deleteProject">Delete Project</button>
+            </form>
             
-            <!-- new list
-            <form class="form" id="newListForm">
-                <h2 class="listTitle">Create New List</h2>
-                <div class="dropsCont">
-                    <select name="allProjects" id="allProjects">
-                        <option value="" disabled selected>Choose a project:</option>
-                        <option value="misc">Miscellaneous</option> 
-                        <option value="newProject">New project</option>
-                    </select>
-                    <input type="text" id="lFormProjName" placeholder="Project Name">
-                    <select name="priority" id="priority">
-                        <option value="" disabled selected>Priority:</option>
-                        <option value="high">high</option> 
-                        <option value="normal">normal</option> 
-                        <option value="low">low</option>
-                    </select>
-                </div>
-                <div>
-                    <input type="text" id="listName" placeholder="List Title">
-                    <p id="listNameError" class="error"></p>
-                </div>
-                <div>
-                    <input type="text" id="dueDate" placeholder="Due Date">
-                </div>
-                <ol id="formListItems">
-                    <li><input class="formItem" type="text" id="listItem1"></li>
-                </ol>
-                <button id="addItems" data-id="1"> + </button>
-                <button class="fsubmit" type="submit" id="addList">Add List</button>
-            </form> -->
             <!-- are you sure message for deletion (?) -->
         </div>
         <div id="top"> 
@@ -75,68 +56,6 @@
 
         </div>
         <div id="content">
-            <!-- list view -->
-            <!-- <div class="tile">
-                <div class="tileTop">
-                    <div class="headContainer">
-                        <h2 class="listTitle">Fake List</h2>
-                        <h5 class="deadline">1/2/33</h5>
-                    </div>
-                </div>
-                <div class="checkContainer">
-                    <input type="checkbox" class="checkbox" name="Fake List0" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List1" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List2" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List3" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List4" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List5" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List6" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List7" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List8" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List9" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List10" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List11" data-id="Miscellaneous">
-                    <input type="checkbox" class="checkbox" name="Fake List12" data-id="Miscellaneous">
-                </div>
-                <div class="listItems">
-                    <p class="listItem" id="listIndex0">wombo</p>
-                    <p class="listItem" id="listIndex1">wumbo</p>
-                    <p class="listItem" id="listIndex2">mumbo</p>
-                    <p class="listItem" id="listIndex3">jumbo</p>
-                    <p class="listItem" id="listIndex4">gumbo</p>
-                    <p class="listItem" id="listIndex5">flumbo</p>
-                    <p class="listItem" id="listIndex6">humbo</p>
-                    <p class="listItem" id="listIndex7">plumbo</p>
-                    <p class="listItem" id="listIndex8">sumbo</p>
-                    <p class="listItem" id="listIndex9">quombo</p>
-                    <p class="listItem" id="listIndex10">zumbo</p>
-                    <p class="listItem" id="listIndex11">vumbo</p>
-                    <p class="listItem" id="listIndex12">kumbo</p>
-                </div>
-            </div> -->
-            <!-- <div class="tile" style="display: grid;">
-                <div class="tileTop">
-                    <div class="headContainer">
-                        <h2 class="listTitle">Fake List</h2>
-                        <h5 class="deadline">1/2/33</h5>
-                    </div>
-                </div>
-                <ol class="checkContainer">
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List0" data-id="Miscellaneous"><p class="listItem" id="listIndex0">wombo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List1" data-id="Miscellaneous"><p class="listItem" id="listIndex1">wumbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List2" data-id="Miscellaneous"><p class="listItem" id="listIndex2">mumbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List3" data-id="Miscellaneous"><p class="listItem" id="listIndex3">jumbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List4" data-id="Miscellaneous"><p class="listItem" id="listIndex4">gumbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List5" data-id="Miscellaneous"><p class="listItem" id="listIndex5">flumbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List6" data-id="Miscellaneous"><p class="listItem" id="listIndex6">humbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List7" data-id="Miscellaneous"><p class="listItem" id="listIndex7">plumbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List8" data-id="Miscellaneous"><p class="listItem" id="listIndex8">sumbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List9" data-id="Miscellaneous"><p class="listItem" id="listIndex9">quombo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List10" data-id="Miscellaneous"><p class="listItem" id="listIndex10">zumbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List11" data-id="Miscellaneous"><p class="listItem" id="listIndex11">vumbo</p></li>
-                    <li class="lvcheckItem"><input type="checkbox" class="checkbox" name="Fake List12" data-id="Miscellaneous"><p class="listItem" id="listIndex12">kumbo</p></li>
-                </ol>
-            </div> -->
             <!-- new list -->
             <form class="form" id="newListForm">
                 <h2 class="listTitle">Create New List</h2>
@@ -168,6 +87,53 @@
                     <li><input class="formItem" type="text" id="listItem1"></li>
                 </ol>
                 <button class="fsubmit" type="submit" id="addList">Add List</button>
+            </form>
+            <!-- Edit list -->
+            <!-- 
+            projectDrop: 'editAllProjects', id
+            newProject: 'editFormProjName', id
+            priority: 'editPriority', id
+            dueDate: 'editDueDate', id
+            addItems: 'editAddItems', id
+            rmItems: 'editRmItems', id
+            listNameError: 'editListNameError', id
+            formListItems: 'editFormListItems', id
+            -->
+            <form class="form" id="editListForm">
+                <h2 class="listTitle">Edit List</h2>
+                <div class="dropsCont">
+                    <!-- event: onChange move list to a different project -->
+                    <select name="editAllProjects" id="editAllProjects">
+                        <option value="" disabled selected>Choose a project:</option>
+                        <option value="misc">Miscellaneous</option> 
+                        <option value="newProject">New project</option>
+                    </select>
+                    <!-- event: Create new project & move list into it -->
+                    <input type="text" id="editFormProjName" placeholder="Project Name">
+                    <!-- event: onChange reassign list priority -->
+                    <select name="editPriority" id="editPriority">
+                        <option value="" disabled selected>Priority:</option>
+                        <option value="high">high</option> 
+                        <option value="normal">normal</option> 
+                        <option value="low">low</option>
+                    </select>
+                    <!-- event: onChange (?) reassign list dueDate -->
+                    <input type="text" id="editDueDate" placeholder="Due Date">
+                </div>
+                <div class="dropsCont">
+                    <input type="text" id="editListName" placeholder="List Title">
+                    <div class="addRmCont">
+                        <button class="addRmItems" id="editAddItems"> + </button>
+                        <p class="addRmLabel">tasks</p>
+                        <button class="addRmItems" id="editRmItems"> — </button>
+                    </div>
+                    <p id="editListNameError" class="error"></p>
+                </div>
+                <ol id="editFormListItems">
+                    <li><input class="formItem" type="text" id="editlistItem1"></li>
+                </ol>
+                <button class="fsubmit" type="submit" id="editList">Edit List</button>
+                <button class="fsubmit" id="deleteList">Delete List</button>
             </form>
         </div>
     </div>
