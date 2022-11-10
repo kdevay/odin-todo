@@ -383,6 +383,9 @@ const display = { // Display appropriate DOM object(s)
         const name = document.createElement('h2'); // Header
         name.setAttribute('class', 'listTitle')
         name.textContent = listName;
+        const priority = document.createElement('h5'); // Priority
+        due.setAttribute('class', 'priority')
+        due.textContent = listObj.dueDate;
         const due = document.createElement('h5'); // Deadline
         due.setAttribute('class', 'deadline')
         due.textContent = listObj.dueDate;
@@ -393,6 +396,7 @@ const display = { // Display appropriate DOM object(s)
         tileTop.appendChild(headCont)
         headCont.appendChild(name);
         headCont.appendChild(due);
+        headCont.appendChild(priority);
         tile.appendChild(checkCont);
         
         //Dynamically create list and checkboxes
@@ -553,7 +557,7 @@ const addNew = {
             display.projectFile(projectName); // Add project to sidebar
 
         } else { // Get project value from dropdown
-            projectName = get.valueFromDropdown(page.fields.projDropdown);
+            projectName = get.dropdownValue(page.fields.projDropdown);
             projectName = !projectName ? 'Miscellaneous' : projectName; // Default to miscellaneous 
         }
         let parentProject = get.project(projectName); // Get project object
@@ -565,8 +569,8 @@ const addNew = {
         for (let i = 0; i < elements.length; i++) { // Get list items 
             items.push({name: elements[i].value, isChecked: false});
         }
-        //valueFromDropdown(dropDownArray)
-        priority = get.dropdownValue(page.form.priority) === '' ?  'normal' : priority; // Default to OG value
+
+        priority = get.dropdownValue(page.fields.priority) === '' ?  'normal' : priority; // Default to OG value
         
         let list = new List (listName, dueDate, priority, items);// Construct new list
         parentProject.lists.push(list); // Add list to parent

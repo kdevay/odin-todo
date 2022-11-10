@@ -198,6 +198,14 @@ select{
     color: black;
     background-color: rgb(199, 208, 208);
 }
+.sideUl {
+    list-style: none;
+    margin: 0px; 
+    padding-left: 20px;
+}
+.sideLists {
+    text-decoration: none;
+}
 .sideLists:hover {
     cursor: pointer;
     color: black;
@@ -205,10 +213,12 @@ select{
 }
 .hedspace {
     display: flex;
+    justify-content: space-between;
     align-content: space-between;
     align-items: center;
-    justify-content: space-between;
+    height: 40px;
 }
+
 
 #content {
     grid-area: 2 / 2 / 3 / 3;
