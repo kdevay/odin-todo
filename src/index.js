@@ -86,7 +86,7 @@ const page = {
         selectProjects: document.getElementById('allProjects'),
     }, 
     show(element) { // TODO: add language for grid containers
-        element.getAttribute('class') === 'tile' ? element.style.display = 'grid' : element.style.display = 'flex';
+        element.style.display = element.getAttribute('class') === 'tile' ?  'block' : 'flex';
     },
     hide(element) {
         element.style.display =  'none';
@@ -110,7 +110,7 @@ const page = {
             return; 
         }
         let parent;
-        if (type === 'tile') {
+        if (type === 'tile' || 'pvTile') {
             parent = this.content;
         } else if (type === 'edit'){
             parent = document.getElementById('editFormListItems');
@@ -118,7 +118,7 @@ const page = {
             parent = document.getElementById('formListItems');
         }
         if (toDelete === "all") { // Remove all elements
-            for (let i = elements.length; i >= 0; i--) {
+            for (let i = elements.length - 1; i >= 0; i--) {
                 parent.removeChild(elements[i]);
             }
         } else if(toDelete === 1 && elements.length !== 1){ // Remove last item 
@@ -175,9 +175,7 @@ const get = {
         return false;
     },
     lastElement(className){
-        console.log('className: ', className);
         let elements = document.getElementsByClassName(className);
-        console.log('elements: ', elements);
         return !elements.length ? false : elements[elements.length - 1];
     }
 };
@@ -357,7 +355,8 @@ const display = { // Display appropriate DOM object(s)
     listView(e) { // Show a single list
         page.stopSub(e);
         page.orphan('tile', 'all', 'tile'); // Orphan all tiles
-        page.orphan('PVTile', 'all', 'tile');
+        page.orphan('lvTile', 'all', 'tile');
+        page.orphan('pvTile', 'all', 'tile');
         page.hideAll(); 
 
         let projectName = e.target.getAttribute('data-proj'); // Get project name
@@ -369,34 +368,31 @@ const display = { // Display appropriate DOM object(s)
         // Dynamically create tile
         const tile = document.createElement('div'); // tile
         tile.setAttribute('class', 'tile')
-        page.content.appendChild(tile);
-        const tileTop = document.createElement('div'); // Top container
-        tileTop.setAttribute('class', 'tileTop')
+        const tileTop = document.createElement('div'); // Heading container
+        tileTop.setAttribute('class', 'lvHead')
         const editButton = document.createElement('img'); // Edit button
         editButton.setAttribute('id', 'edit' + listName);
         editButton.setAttribute('data-id', 'edit' + projectName);
         editButton.setAttribute('class', 'dots'); 
         editButton.setAttribute('src', Dots);
         editButton.addEventListener('click', addNew.editedList);
-        const headCont = document.createElement('div'); // Header container
-        headCont.setAttribute('class', 'headContainer')
         const name = document.createElement('h2'); // Header
         name.setAttribute('class', 'listTitle')
         name.textContent = listName;
         const priority = document.createElement('h5'); // Priority
-        due.setAttribute('class', 'priority')
-        due.textContent = listObj.dueDate;
+        priority.setAttribute('class', 'lvSubhead')
+        priority.textContent = 'Priority:  ' + listObj.priority;
         const due = document.createElement('h5'); // Deadline
-        due.setAttribute('class', 'deadline')
-        due.textContent = listObj.dueDate;
+        due.setAttribute('class', 'lvSubhead')
+        due.textContent = 'Deadline:  ' + listObj.dueDate;
         const checkCont = document.createElement('ol'); // List container
         checkCont.setAttribute('class', 'checkContainer')
-        tile.appendChild(tileTop); // Add to DOM
+        page.content.appendChild(tile); // Add to DOM
+        tile.appendChild(tileTop);
+        tileTop.appendChild(name)
         tileTop.appendChild(editButton); 
-        tileTop.appendChild(headCont)
-        headCont.appendChild(name);
-        headCont.appendChild(due);
-        headCont.appendChild(priority);
+        tile.appendChild(priority);
+        tile.appendChild(due);
         tile.appendChild(checkCont);
         
         //Dynamically create list and checkboxes
@@ -426,7 +422,8 @@ const display = { // Display appropriate DOM object(s)
     projectView(e) { // Show all lists within a project
         page.stopSub(e);
         page.orphan('tile', 'all', 'tile');// Orphan all tiles
-        page.orphan('PVTile', 'all', 'tile');
+        page.orphan('lvTile', 'all', 'tile');
+        page.orphan('pvTile', 'all', 'tile');
         let projectName = e.target.getAttribute('id'); // Get project name
         page.currentView.textContent = projectName // Set header contents
         let projectObj = get.project(projectName); // Get project object
@@ -434,7 +431,7 @@ const display = { // Display appropriate DOM object(s)
         for (let i = 0; i < projectObj.lists.length; i++) { // dynamically create PVTiles
             // Create tile elements
             let tile = document.createElement('div'); // Tile container
-            tile.setAttribute('class', 'PVTile');
+            tile.setAttribute('class', 'pvTile');
             tile.setAttribute('data-id',  projectObj.lists[i].name);
             tile.setAttribute('data-proj', projectName);
             tile.addEventListener('click', this.listView);

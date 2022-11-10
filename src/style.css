@@ -230,19 +230,31 @@ select{
     gap: 20px;
 }
 .tile {
-    /* display: grid; */
-    display: none;
-    grid-template: 35px 1fr / 1fr 10fr;
     background-color: rgb(28, 30, 30);
     min-width: 200px;
     min-height: 200px;
-    max-width: 400px;
-    max-height: auto;
+    max-width: fit-content;
+    max-height: fit-content;
     border-radius: 20px;
     padding: 20px;
+    flex-direction: column;
+}
+.pvTile {
+    background-color: rgb(28, 30, 30);
+    min-width: 100px;
+    min-height: 100px;
+    max-width: 400px;
+    max-height: 400px;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-content: center;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
 }
 .listTitle,
-.deadline {
+.lvSubhead {
     margin: 0 0 5px 0;
 }
 input.checkbox{
@@ -257,6 +269,13 @@ input.checkbox{
     justify-content: space-between;
     align-items: flex-start;
 }
+.lvHead{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 5px;
+}
 #edit { /* may delete later idk */
     background-color: rgb(28, 30, 30);
     font-size: 16px;
@@ -270,7 +289,7 @@ input.checkbox{
     align-items: center;
     padding-inline-start: 0px;
     gap: 10px;
-
+    margin: 16px 0 0 0;
 }
 .lvcheckItem {
     display: flex;
@@ -291,20 +310,6 @@ input.checkbox{
     margin: 0px;
 }
 
-.PVTile {
-    background-color: rgb(28, 30, 30);
-    min-width: 100px;
-    min-height: 100px;
-    max-width: 400px;
-    max-height: 400px;
-    border-radius: 20px;
-    padding: 20px;
-    display: flex;
-    align-content: center;
-    align-items: flex-start;
-    justify-content: center;
-    flex-direction: column;
-}
 .error{
     display: none;
     color: #ff9797;;
