@@ -52,6 +52,14 @@ select{
     justify-content: center;
 }
 .pform {
+    display: none;
+    flex-direction: column;
+    border-radius: 30px;
+    gap: 20px;
+}
+/* UNICORN */
+.dform { 
+    display: flex;
     flex-direction: column;
     border-radius: 30px;
     gap: 20px;
@@ -139,10 +147,18 @@ select{
     max-width: 30px;
     max-height: 30px;
 }
-.icon:hover{
+.icon:hover {
     cursor: pointer;
     background-color: rgb(43, 46, 46);
     box-shadow: 0 0 10px 7px  rgb(43, 46, 46);
+}
+.dots {
+    margin: 10px;
+    max-width: 20px;
+    max-height: 20px;
+}
+.dots:hover {
+    cursor: pointer;
 }
 #addButtons{
     display: none;
@@ -171,8 +187,11 @@ select{
     display: flex;
     flex-direction: column;
     background-color: rgb(28, 30, 30);
-    padding-left: 10px;
+    padding: 0 10px 0 10px;
     justify-content: flex-start;
+}
+.sideProjects{
+    width: fit-content;
 }
 .sideProjects:hover {
     cursor: pointer;
@@ -183,6 +202,12 @@ select{
     cursor: pointer;
     color: black;
     background-color: rgb(174, 201, 201);
+}
+.hedspace {
+    display: flex;
+    align-content: space-between;
+    align-items: center;
+    justify-content: space-between;
 }
 
 #content {

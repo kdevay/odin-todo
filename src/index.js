@@ -45,15 +45,13 @@ const page = {
     errorEP: document.getElementById('editProjNameError'),// pform
     errorL: document.getElementById('listNameError'),
     errorP: document.getElementById('projNameError'),
-    listCounter: 1,
-    editLCounter: 1,
     listForm: document.getElementById('newListForm'),
-    listItemsOL: document.getElementById('formListItems'),
+    listItemsOL: document.getElementById('formListItems'), 
     modal: document.getElementById('modal'),
     modalShadow: document.getElementById('modalShadow'),
     projectForm: document.getElementById('newProjForm'),
     sidebar: document.getElementById('files'),
-    edit: {
+    edit: { 
         addItems: document.getElementById('editAddItems'),
         dueDate: document.getElementById('editDueDate'),
         listItems: document.getElementById('editFormListItems'),
@@ -103,16 +101,33 @@ const page = {
         this.hide(this.listForm);
         this.hide(this.editLForm);
         this.hide(this.editPForm);
+        this.hide(this.edit.newProject);
         this.hide(this.fields.lProjectName);
     },
-    orphan(elements){
-        let length = elements.length;
-        if (!length){
+    orphan(className, toDelete, type){ // Remove one or more items from DOM
+        let elements = document.getElementsByClassName(className);
+        if (!elements.length){ // If no elements of class 'className' exist
+            return; 
+        }
+        let parent;
+        if (type === 'tile') {
+            parent = this.content;
+        } else if (type === 'edit'){
+            parent = document.getElementById('editFormListItems');
+        } else {
+            parent = document.getElementById('formListItems');
+        }
+        if (toDelete === "all") { // Remove all elements
+            for (let i = elements.length; i >= 0; i--) {
+                parent.removeChild(elements[i]);
+            }
+        } else if(toDelete === 1 && elements.length !== 1){ // Remove last item 
+            console.log('elements[el.length - 1]:', elements[elements.length - 1]);
+            parent.removeChild(elements[elements.length - 1]); 
             return;
         }
-        length--;
-        for (let i = length; i >= 0; i--) {
-            this.content.removeChild(elements[i]);
+        for (let i = elements.length - 1; i > 0; i--) {
+            parent.removeChild(elements[i]); // Remove all except first item
         }
     },
     clearForms() {
@@ -121,6 +136,10 @@ const page = {
         this.editLForm.reset();
         this.editPForm.reset();
     },
+    stopSub(e) {
+        // Prevent form submission
+        e.preventDefault();
+        }
 };
 
 // functions ////////////////////////////////////////////////////////
@@ -154,46 +173,18 @@ const get = {
             }
         }
         return false;
-    }
-};
-
-const rm = { 
-    allItems(id){ // rewrite this to include list form elements
-        while (page.editLCounter > 1) {
-            this.listItem(id);
-            page.editLCounter--;
-        }
     },
-    listItem (e) { 
-        e !== 'editLi' ? addNew.stopSub(e): e = e;
-        let liId, parent; // Set values based on form type
-        if (e === 'editLi' || e.target.getAttribute('id')[0] === 'e') { // For edit form
-            // Ensure minimum list length
-            if (page.editLCounter < 2) {
-                return;
-            }
-            liId = 'editLi' + page.editLCounter;
-            parent = edit.listItems;
-            page.editLCounter--; // decrement counter
-        } else { // For list form
-            // Ensure minimum list length
-            if (page.listCounter < 2) {
-                return;
-            }
-            liId = 'li' + page.listCounter;
-            parent = page.listItemsOL;
-            page.listCounter--; // decrement counter
-        }
-
-        // Find last added list item 
-        let lastItem = document.getElementById(liId);
-        // Orphan last list item
-        parent.removeChild(lastItem);
+    lastElement(className){
+        console.log('className: ', className);
+        let elements = document.getElementsByClassName(className);
+        console.log('elements: ', elements);
+        return !elements.length ? false : elements[elements.length - 1];
     }
 };
 
 const validate = { 
-    name(name, array, datumType, isListForm) {
+    // Validate list name from list form & project name from edit & list forms 
+    name(name, array, datumType, isListForm) { 
         // Get correct form error message
         let errorMessage = !isListForm  ? page.errorL : page.errorP;
         if (name === '') { // Field is empty
@@ -210,7 +201,7 @@ const validate = {
         }
         return true;
     },
-    editName(name, array, OGindex){
+    editName(name, array, OGindex){ // Validate list name from error form
         let errorMessage;
         
         for (let i = 0; i < array.length; i++){
@@ -235,7 +226,7 @@ const update = {
         let itemIndex = nameID.slice(nameID.length - 1);
         let listObject = get.list(listName, projectObject);
         listObject.items[itemIndex].isChecked = checked; // Update check status
-    }
+    }, 
 };
 
 
@@ -250,22 +241,16 @@ const form = {
     list() { // On '+list' button click
         page.hide(page.modalShadow); // Hide shadow
         page.hide(page.dropdownCont); // Hide '+' menu
-
-        // Orphan additional list items from previous list
-        while (page.listCounter > 1) {
-            let lastItem = document.getElementById('li' + page.listCounter);
-            page.listItemsOL.removeChild(lastItem); // Orphan last list item 
-            page.listCounter--; // decrement list counter
-        }
-
+        page.orphan('listItemParent', 'all-1', 'list'); // Orphan list items from previous list
         page.show(page.listForm); // Display List form
     },
 
-    edit(e) {
+    edit(e) { // On '...' click
         let dataId = e.target.getAttribute('data-id');
         let name = e.target.getAttribute('id').slice(4);
-        if (dataId === 'p') { // If editing project
-            page.edit.projectName.value = name;// Add OG name to form
+        // If editing project
+        if (dataId === 'p') { 
+            page.edit.projectName.value = name;// Pre-fill form with OG name
             page.show(page.editPForm);// open form
             return;
         } 
@@ -277,34 +262,91 @@ const form = {
         page.edit.dueDate.setAttribute('value', name); // Add name & deadline
         page.edit.listName.setAttribute('value', list.dueDate); 
         
-        // Add list data to form
-        for (let i = 0; i < page.edit.priority.length; i++) { // Select project
-            if (dataId === page.edit.projectDrop[i].value) {
-                page.edit.projectDrop[i].selected = true;
-            }
-        }
-        for (let i = 0; i < page.edit.priority.length; i++) { // Select priority
-            if (list.priority === page.edit.priority[i].value) {
-                page.edit.priority[i].selected = true;
-            }
-        }
+        // Pre-fill form with list data
+        this.selectDrop(dataId, page.edit.projectDrop); // Select project
+        this.selectDrop(list.priority, page.edit.priority); // Select priority
         for (let i = 0; i < list.items.length; i++) { // Add list items to form
-            let tempLI = addNew.listItem('editLi');
+            let tempLI = this.addListItem('editLi');
             tempLI.setAttribute('value', list.items[i]);
             tempLI.checked = list.items[i].checked;
         }
-        page.hideAll(); // Reset defaults
-        page.clearForms();
+        page.hideAll(); // Clear display
         page.editLForm.style.display = 'flex'; // Display edit list form
-        rm.allItems('editLi'); // Reset form list fields
-    }
+    },
+
+    selectDrop(value, array) {
+        for (let i = 0; i < array.length; i++) { // Select project
+            if (value === array[i].value) {
+                array[i].selected = true;
+            }
+        }
+    },
+    
+    dropProj(name){ // add new project name to dropdown menu
+        let parent = page.fields.projDropdown; // Dropdown parent container
+        let temp = document.createElement('option');
+        temp.setAttribute('class', 'addedProject');
+        temp.setAttribute('value', name);
+        temp.textContent = name;
+        parent.appendChild(temp);
+    },
+
+    rmListItem (e) { // Rm list item
+        page.stopSub(e);
+        // Set values based on form type
+        if (e.target.getAttribute('id') === 'editRmItems') { // For edit form
+            page.orphan('eListItemParent', 1, 'edit');
+            return;
+        }// For list form
+        page.orphan('listItemParent', 1, 'list');
+        
+    },
+
+    addListItem(e) { // Add list item
+        console.log("entered addListItem");
+        e !== 'editLi' ? page.stopSub(e) : e = e; // If accessed during pre-fill of edit form 
+        // Set values based on form type
+        let liClass, inputClass, inputId, parent; 
+        if ( e.target.getAttribute('id') === 'addItems') { // For list form
+            parent = page.listItemsOL;
+            liClass = 'listItemParent';
+            inputId = 'listItem'
+            inputClass = 'formItem';
+        } else { // For edit form
+            parent = edit.listItems;
+            liClass = 'eListItemParent';
+            inputId = 'editListItem' //counter
+            inputClass = 'editFormItem';
+        }
+        let lastElement = get.lastElement(liClass); // Get counter from last element
+        let counter = lastElement.getAttribute('data-id');
+        counter++;
+        
+        let tempLI = document.createElement('li'); // Add li to DOM 
+        tempLI.setAttribute('data-id', counter);
+        tempLI.setAttribute('class', 'listItemParent');
+        let tempInput = document.createElement('input'); // Add input to DOM
+        tempInput.setAttribute('class', inputClass);
+        tempInput.setAttribute('type', 'text');
+        tempInput.setAttribute('id', inputId + counter);
+        tempLI.appendChild(tempInput);
+        parent.appendChild(tempLI);
+        if (e === 'editLi'){ // Return element if accessed in pre-fill of edit form 
+            return tempLI;
+        }
+    },
 };
 
-// Display appropriate DOM object(s)
-const display = { 
+
+
+const display = { // Display appropriate DOM object(s)
     shadowClick() { // Close all forms on shadow click
         page.hideAll();
         page.clearForms();
+    },
+    
+    confirm() { // Displays modal confirming project or list deletion
+
     },
 
     add() { // On '+' icon click,
@@ -312,50 +354,17 @@ const display = {
         page.show(page.dropdownCont);
     },
 
-    projectFile(name) {
-        // Create Div and heading elements
-        let div = document.createElement('div');
-        div.setAttribute('id', 'parent' + name);
-        let project = document.createElement('h3');
-        project.textContent = name;
-        project.setAttribute('class', 'sideProjects');
-        project.setAttribute('id', name);
-        project.addEventListener('click', this.projectView);
-        const editButton = document.createElement('img'); // EDIT BUTTON TO project
-        editButton.setAttribute('id', 'edit' + projectName);
-        editButton.setAttribute('data-id', 'p');
-        editButton.setAttribute('class', 'icon'); 
-        editButton.setAttribute('src', Dots);
-        editButton.addEventListener('click', form.edit); 
-        tileTop.appendChild(editButton); // either tile or headingDiv !!!!!
-        page.sidebar.appendChild(div);// Add elements to DOM
-        div.appendChild(project);
-    }, 
-
-    listFile(listName, projectName) {
-        projectName = !projectName ? 'Miscellaneous' : projectName; // Default to miscellaneous
-        let list = document.createElement('p'); 
-        list.textContent = listName; 
-        list.setAttribute('data-id', projectName);// Add project data to element
-        list.setAttribute('class', 'sideLists');
-        list.setAttribute('id', listName);
-        list.addEventListener('click', this.listView);
-        let parent = document.getElementById('files'); // Get parent element
-        parent.appendChild(list);
-    },
-
-    listView(e) {
-        addNew.stopSub(e);
-        page.orphan(document.getElementsByClassName('tile')); // Orphan all tiles
-        page.orphan(document.getElementsByClassName('PVTile'));
+    listView(e) { // Show a single list
+        page.stopSub(e);
+        page.orphan('tile', 'all', 'tile'); // Orphan all tiles
+        page.orphan('PVTile', 'all', 'tile');
         page.hideAll(); 
 
-        let projectName = e.target.getAttribute('data-Id'); // Get button data
-        let listName = e.target.getAttribute('id');
-        
+        let projectName = e.target.getAttribute('data-proj'); // Get project name
+        let listName = e.target.getAttribute('data-Id'); // Get list name
         page.currentView.textContent = projectName + '  /  ' + listName; // Set header
-        let projectObj = get.project(projectName); // Get project object and list data
-        let listData = get.list(listName, projectObj);
+        let projectObj = get.project(projectName); // Get project and list objects
+        let listObj = get.list(listName, projectObj);
 
         // Dynamically create tile
         const tile = document.createElement('div'); // tile
@@ -363,12 +372,12 @@ const display = {
         page.content.appendChild(tile);
         const tileTop = document.createElement('div'); // Top container
         tileTop.setAttribute('class', 'tileTop')
-        const editButton = document.createElement('img'); // EDIT BUTTON
+        const editButton = document.createElement('img'); // Edit button
         editButton.setAttribute('id', 'edit' + listName);
         editButton.setAttribute('data-id', 'edit' + projectName);
-        editButton.setAttribute('class', 'icon'); 
+        editButton.setAttribute('class', 'dots'); 
         editButton.setAttribute('src', Dots);
-        editButton.addEventListener('click', addNew.listEdit);
+        editButton.addEventListener('click', addNew.editedList);
         const headCont = document.createElement('div'); // Header container
         headCont.setAttribute('class', 'headContainer')
         const name = document.createElement('h2'); // Header
@@ -376,7 +385,7 @@ const display = {
         name.textContent = listName;
         const due = document.createElement('h5'); // Deadline
         due.setAttribute('class', 'deadline')
-        due.textContent = listData.dueDate;
+        due.textContent = listObj.dueDate;
         const checkCont = document.createElement('ol'); // List container
         checkCont.setAttribute('class', 'checkContainer')
         tile.appendChild(tileTop); // Add to DOM
@@ -387,7 +396,7 @@ const display = {
         tile.appendChild(checkCont);
         
         //Dynamically create list and checkboxes
-        for (let i = 0; i < listData.items.length; i++) {
+        for (let i = 0; i < listObj.items.length; i++) {
             let tempLi = document.createElement('li'); // List item
             tempLi.setAttribute('class', 'lvcheckItem');
             let tempCheck = document.createElement('input'); // Checkbox
@@ -395,14 +404,14 @@ const display = {
             tempCheck.setAttribute('class', 'checkbox');
             tempCheck.setAttribute('name', listName + i);
             tempCheck.setAttribute('data-id', projectName);
-            if (listData.items[i].isChecked) { // Add checkbox value
+            if (listObj.items[i].isChecked) { // Add checkbox value
                 tempCheck.checked = true;
             }
             tempCheck.addEventListener("change", update.isCheckedStatus);
             let tempItem = document.createElement('p'); // List item value
             tempItem.setAttribute('class', 'listItem');
             tempItem.setAttribute('id', 'listIndex' + i);
-            tempItem.textContent = listData.items[i].name;
+            tempItem.textContent = listObj.items[i].name;
             checkCont.appendChild(tempLi); // Add to DOM
             tempLi.appendChild(tempCheck);
             tempLi.appendChild(tempItem);
@@ -410,80 +419,99 @@ const display = {
         page.show(tile);
     },
 
-    projectView(e) {
-        console.log('entered projectView');
-        // Orphan all tiles
-        page.orphan(document.getElementsByClassName('tile'));
-        page.orphan(document.getElementsByClassName('PVTile'));
-
-        addNew.stopSub(e);
-        let projectName = e.target.getAttribute('id');
+    projectView(e) { // Show all lists within a project
+        page.stopSub(e);
+        page.orphan('tile', 'all', 'tile');// Orphan all tiles
+        page.orphan('PVTile', 'all', 'tile');
+        let projectName = e.target.getAttribute('id'); // Get project name
         page.currentView.textContent = projectName // Set header contents
         let projectObj = get.project(projectName); // Get project object
-        // dynamically create PVTiles
-        for (let i = 0; i < projectObj.lists.length; i++) {
+        
+        for (let i = 0; i < projectObj.lists.length; i++) { // dynamically create PVTiles
             // Create tile elements
-            let tile = document.createElement('div');
+            let tile = document.createElement('div'); // Tile container
             tile.setAttribute('class', 'PVTile');
-            let headingDiv = document.createElement('div');
+            tile.setAttribute('data-id',  projectObj.lists[i].name);
+            tile.setAttribute('data-proj', projectName);
+            tile.addEventListener('click', this.listView);
+            let headingDiv = document.createElement('div'); // Heading container
             headingDiv.setAttribute('class', 'headingContainer');
-            let listTitle = document.createElement('h2');
+            let listTitle = document.createElement('h2'); // Heading
             listTitle.setAttribute('class', 'listTitle');
             listTitle.textContent = projectObj.lists[i].name;
-            let deadline = document.createElement('h5');
+            let deadline = document.createElement('h5'); // Deadline
             deadline.setAttribute('class', 'deadline');
             deadline.textContent = 'Due: ' + projectObj.lists[i].dueDate;
-            let priority = document.createElement('h5');
+            let priority = document.createElement('h5'); // Priority
             priority.setAttribute('class', 'deadline');
             priority.textContent = 'Priority: ' + projectObj.lists[i].priority;
-            // Add tile to DOM
-            page.content.appendChild(tile);
+            page.content.appendChild(tile); // Add to DOM
             tile.appendChild(headingDiv);
             headingDiv.appendChild(listTitle);
             headingDiv.appendChild(deadline);
             headingDiv.appendChild(priority);
         }
+    },
+
+    listFile(listName, projectName) { // Add list to sidebar
+        projectName = !projectName ? 'Miscellaneous' : projectName; // Default to miscellaneous
+        let parent = document.getElementById('sideUl' + projectName);// Get parent element
+        let list = document.createElement('li'); 
+        list.textContent = listName; 
+        list.setAttribute('data-proj', projectName); // Add data to element
+        list.setAttribute('data-id', listName);
+        list.setAttribute('class', 'sideLists');
+        list.setAttribute('id', 'sideLi' + listName);
+        list.addEventListener('click', this.listView);
+        parent.appendChild(list);
+    },
+
+    projectFile(name) { // Add project to sidebar
+        // Create Div and heading elements
+        let div = document.createElement('div'); // Project container
+        div.setAttribute('id', 'parent' + name);
+        let hCont = document.createElement('div');//  Header container
+        hCont.setAttribute('class', 'hedspace');
+        let project = document.createElement('h3'); // Project header
+        project.textContent = name;
+        project.setAttribute('class', 'sideProjects');
+        project.setAttribute('id', name);
+        project.addEventListener('click', this.projectView);
+        const editButton = document.createElement('img'); // Edit button
+        editButton.setAttribute('id', 'edit' + name);
+        editButton.setAttribute('data-id', 'p');
+        editButton.setAttribute('class', 'dots'); 
+        editButton.setAttribute('src', Dots);
+        editButton.addEventListener('click', form.edit); 
+        let list = document.createElement('ul');
+        list.setAttribute('class', 'sideUl');
+        list.setAttribute('id', 'sideUl' + name); 
+        page.sidebar.appendChild(div);// Add elements to DOM 
+        div.appendChild(hCont);
+        hCont.appendChild(project);
+        hCont.appendChild(editButton); 
+        div.appendChild(list);
+    }
+};
+
+const rm = {
+    listFile(name, OGname, projName, hasMoved){
+        let listFile = document.getElementById('sideLi' + OGname)
+        let parent = document.getElementById('sideUl' + projName)
+        if (hasMoved) { // Orphan OG file
+            parent.removeChild(listFile);
+            return;
+        }
+        // If has not moved, replace OG file data with news
+        listFile.textContent = name; 
+        listFile.setAttribute('data-id', name);
+        listFile.setAttribute('id', 'sideLi' + name);
     }
 };
 
 const addNew = {
-    stopSub(e) {
-    // Prevent form submission
-    e.preventDefault();
-    },
-
-    //  Add list item
-    listItem(e) {
-        e !== 'editLi' ? addNew.stopSub(e) : e = e;
-        let liId, inputId, parent; // Set id values based on form type
-        if (e === 'editLi' || e.target.getAttribute('id')[0] === 'e') { // For edit form
-            page.editLCounter++
-            parent = edit.listItems;
-            liId = 'editLi' + page.editLCounter;
-            inputId = 'editListItem' + page.editLCounter;
-        } else { // For list form
-            page.listCounter++;
-            parent = page.listItemsOL;
-            liId = 'li' + page.listCounter;
-            inputId = 'listItem' + page.listCounter;
-        }
-        // Add li and nested text input to DOM
-        let tempLI = document.createElement('li');
-        tempLI.setAttribute('id', liId);
-        let tempInput = document.createElement('input');
-        tempInput.setAttribute('class', 'formItem');
-        tempInput.setAttribute('type', 'text');
-        tempInput.setAttribute('id', inputId);
-        tempLI.appendChild(tempInput);
-        parent.appendChild(tempLI);
-        if (e === 'editLi'){ // return element if accessed in edit form generation
-            return tempLI;
-        }
-    },
-
-    // Selected new project in new list form
-    listProj(e) {
-        addNew.stopSub(e);
+    listProj(e) { // Adding new project from list form to memory
+        page.stopSub(e);
         // Show project name field 
         if (e.target.options[e.target.selectedIndex].text === 'New project'){
             page.show(page.fields.lProjectName);
@@ -491,33 +519,23 @@ const addNew = {
         }
     },
 
-    // add new project name to dropdown menu:  
-    dropProj(name){
-        let parent = page.fields.projDropdown; // Dropdown parent container
-        let temp = document.createElement('option');
-        temp.setAttribute('class', 'addedProject');
-        temp.setAttribute('value', name);
-        temp.textContent = name;
-        parent.appendChild(temp);
-    },
-
-    project(e) {
-        addNew.stopSub(e);
+    project(e) { // Add project to memory
+        page.stopSub(e);
         let projectName = page.fields.projectName.value; // Get Project name 
 
         if (!validate.name(projectName, projects, 'project', false)){
             return false; // Validate project name
         }
 
-        addNew.dropProj(projectName)// Add project to dropdown
+        form.dropProj(projectName)// Add project to dropdown
         projects.push(new Project (projectName, [])); // Add project to projects
         display.projectFile(projectName); // Add project to sidebar
-        page.hideAll(); // Reset defaults
+        page.hideAll();
         page.clearForms();
     },
 
-    list(e) {
-        addNew.stopSub(e);
+    list(e) { // Add list to memory
+        page.stopSub(e);
         let listName = page.fields.listName.value;// Get list data from form
         let dueDate = page.fields.dueDate.value;
         let elements = document.getElementsByClassName('formItem');
@@ -530,7 +548,7 @@ const addNew = {
             if (!validate.name(projectName, projects, 'project', true)){ // Validate project name
                 return;
             }
-            addNew.dropProj(projectName) // Add project to dropdown 
+            form.dropProj(projectName) // Add project to dropdown 
             projects.push(new Project (projectName, [])); // Add project to projects
             display.projectFile(projectName); // Add project to sidebar
 
@@ -552,102 +570,97 @@ const addNew = {
         
         let list = new List (listName, dueDate, priority, items);// Construct new list
         parentProject.lists.push(list); // Add list to parent
-        display.listFile(listName, projectName);// Add list to DOM 
-
-        // Reset to default view
-        page.show(page.buttons.selectProjects);
-        page.clearForms();
+        display.listFile(listName, projectName);// Add list to sidebar 
+        page.orphan('editLi', 'all-1', 'edit'); // Remove extra list fields
+        page.show(page.buttons.selectProjects); // Restore dropdown
         page.hideAll();
+        page.clearForms();
     },
-    projEdit () { // when project edit form is submitted
-        //
+
+    editedProject() { // when project edit form is submitted
+        // 
     },
-    // when list edit form is submitted
-    listEdit() { 
-        addNew.stopSub(e);
+
+    editedList() {  // Add edited list to memory
+        page.stopSub(e); // ('id', 'edit' + listName)('data-id', 'edit' + projectName);
         // Get OG list data from button 
-        let listName = e.target.getAttribute('data-id');
-        listName = listName.slice(5);
-        let projectName = e.target.getAttribute('data-parent');
-        projectName = projectName.slice(5);
+        let listName = e.target.getAttribute('data-id').slice(4);
+        let projectName = e.target.getAttribute('data-parent').slice(4);
         let projectObj = get.project(projectName);
         let listObj = get.list(listName, projectObject);
 
         // Get list data from form
-        let newListName = page.edit.listName.value; // 
+        let hasMoved = window.getComputedStyle(page.edit.newProject).display === 'flex';
+        let newListName = page.edit.listName.value;
         let newDueDate = page.edit.dueDate.value;
         let listElements = document.getElementsByClassName('editFormItem');
         let newProjectName, newProjectObj;
         let newItems = []; 
 
         // If adding a new project
-        if (window.getComputedStyle(page.edit.newProject).display === 'flex'){
+        if (hasMoved){
             newProjectName = page.edit.newProject.value; // Validate project name
             if (!validate.name(newProjectName, projects, 'project', true)) {
                 return;
             }
-            addNew.dropProj(newProjectName) // Add project to dropdown & projects
+            form.dropProj(newProjectName) // Add project to dropdown & projects
             newProjectObj = new Project (newProjectName, [])
             projects.push(newProjectObj);
             display.projectFile(newProjectName); // Update DOM
-
-        } else { // Else, get project name from dropdown menu
+        // Else, get project name from dropdown menu
+        } else { 
             newProjectName = get.dropdownValue(page.edit.projectDrop);
             newProjectName = newProjectName === '' ? projectName : newProjectName;
             newProjectObj = get.project(newProjectName); // Get project object
         }
-
         let newPriority = get.dropdownValue(page.edit.priority); // Get priority
 
-        // Blank fields default to OG values 
-        newPriority = newPriority === '' ? listObj.priority : newPriority;
-        newDueDate = newDueDate === '' ? listObj.dueDate : newDueDate;
-        newListName = newListName === '' ? listName : newListName;
-        if (!listElements) { 
+        if (!listElements.length) { // Default to OG list if form contains no list items
             newItems = listObj.list; 
-        } else {  // Get list from list elements array
+        } else { // Else get list from form
             for (let i = 0; i < listElements.length; i++) { 
                 let tempItem = listElements[i].value;
                 newItems.push({name: tempItem, isChecked: false});
             }
         }
 
+        // Blank fields default to OG values 
+        newPriority = newPriority === '' ? listObj.priority : newPriority;
+        newDueDate = newDueDate === '' ? listObj.dueDate : newDueDate;
+        newListName = newListName === '' ? listName : newListName;
+
         let index = get.listIndex(listName, projectObj)// Get OG list index from OG project
         editName(newListName, newProjectObj.lists, index); // Ensure new list name is unique
-        let newList = new List (newListName, newDueDate, newPriority, newItems); 
-
-        // If list moved to new project
-        if (newProjectName !== projectName) {
-            newProjectObj.lists.push(newList); // Add list to project
+        let newList = new List (newListName, newDueDate, newPriority, newItems); // Make list
+        
+        if (newProjectName !== projectName) {// If list moved to new project
+            newProjectObj.lists.push(newList);
             newProjectObj.lists.splice(index, 1); // Rm OG list from OG project
-            rm.listFile(listName, newProjectObj, projectObj, index) // Remove OG list from DOM
             display.listFile(newListName, newProjectName); // Add list to DOM 
         } else { // If list remains in OG project
             projectObj.lists[index] = newList; // Replace OG list with new list
-            rm.listFile(listName, 1, projectObj, index) // Remove OG list from DOM
         }
-
-        // Reset to defaults
-        page.editLCounter = 1;
-        page.show(page.buttons.editSelectProjects);
+        rm.listFile(newListName, listName, projectName, hasMoved)  // Remove OG list from DOM
+        page.show(page.edit.projectDrop); // Reset to defaults
         page.clearForms();
         page.hideAll();
     }
+
 };
 
 // Events ////////////////////////////////////////////////////////
-addIcon.addEventListener('click', display.add);
+addIcon.addEventListener('click', display.add); // '+' icon menu display
 page.modalShadow.addEventListener('click', display.shadowClick);
-page.buttons.displayPForm.addEventListener('click', form.project); 
+page.buttons.displayPForm.addEventListener('click', form.project); // Open list & project forms
 page.buttons.displayLForm.addEventListener('click', form.list);
-page.buttons.addItems.addEventListener('click', addNew.listItem);
-page.buttons.rmItems.addEventListener('click', rm.listItem);
-page.buttons.addList.addEventListener('click', addNew.list);
+page.buttons.addItems.addEventListener('click', form.addListItem); // '+' & '-' list item
+page.buttons.rmItems.addEventListener('click', form.rmListItem);
+page.buttons.addList.addEventListener('click', addNew.list); // List & project form submission
 page.buttons.addProject.addEventListener('click', addNew.project);
-page.buttons.selectProjects.addEventListener('change', addNew.listProj);
-page.edit.addItems.addEventListener('click', addNew.listItem);
-page.edit.rmItems.addEventListener('click', rm.listItem);
-page.edit.listSubmit.addEventListener('click', form.edit); 
+page.buttons.selectProjects.addEventListener('change', addNew.listProj); // Proj creation in list form
+page.edit.addItems.addEventListener('click', form.addListItem); // '+' & '-' list item (edit form)
+page.edit.rmItems.addEventListener('click', form.rmListItem); //UNICORN
+page.edit.listSubmit.addEventListener('click', form.edit); // Edit form submission
 page.edit.projectSubmit.addEventListener('click', form.edit);
 
 
