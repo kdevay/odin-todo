@@ -35,7 +35,7 @@
                 <button class="psubmit" id="deleteProject">Delete Project</button>
             </form>
             <!-- confirm deletion (?) -->
-            <form class="dform" id="editProjForm">
+            <form class="dform" id="confirmDelete">
                 <h2 class="listTitle">Are you sure?</h2>
                 <div>
                     <p id="confirmation message">You're about to delete this project along with all of it's lists.</p>
@@ -65,26 +65,26 @@
 
         </div>
         <div id="content">
-            <!-- new list -->
+            <!-- new list form-->
             <form class="form" id="newListForm">
                 <h2 class="listTitle">Create New List</h2>
-                <div class="dropsCont">
-                    <select name="allProjects" id="allProjects">
-                        <option value="" disabled selected>Choose a project:</option>
-                        <option value="misc">Miscellaneous</option> 
-                        <option value="newProject">New project</option>
+                <div class="dropsCont"> 
+                    <select class="fields" name="allProjects" id="allProjects">
+                        <option value="" disabled selected>Choose Project</option>
+                        <option value="New Project">New Project</option>
+                        <option value="Miscellaneous">Miscellaneous</option> 
                     </select>
-                    <input type="text" id="lFormProjName" placeholder="Project Name">
-                    <select name="priority" id="priority">
-                        <option value="" disabled selected>Priority:</option>
+                    <input class="fields" type="text" id="lFormProjName" placeholder="Project Name">
+                    <select class="fields" name="priority" id="priority">
+                        <option value="" disabled selected>Priority</option>
                         <option value="high">high</option> 
                         <option value="normal">normal</option> 
                         <option value="low">low</option>
                     </select>
-                    <input type="text" id="dueDate" placeholder="Due Date">
+                    <input class="fields" type="text" id="dueDate" placeholder="Due Date">
                 </div>
                 <div class="dropsCont">
-                    <input type="text" id="listName" placeholder="List Title">
+                    <input class="fields" type="text" id="listName" placeholder="List Title">
                     <div class="addRmCont">
                         <button class="addRmItems" id="addItems"> + </button>
                         <p class="addRmLabel">tasks</p>
@@ -98,42 +98,38 @@
                 <button class="fsubmit" type="submit" id="addList">Add List</button>
             </form>
 
-<!-- DeleteME    -->
 
-<!-- DeleteME    -->
 
-            <!-- Edit list -->
-            <!--projectDrop: 'editAllProjects', id
-                newProject: 'editFormProjName', id
-                priority: 'editPriority', id
-                dueDate: 'editDueDate', id
-                addItems: 'editAddItems', id
-                rmItems: 'editRmItems', id
-                listNameError: 'editListNameError', id
-                formListItems: 'editFormListItems', id-->
+
+
+            <!-- edit list form -->
             <form class="form" id="editListForm">
                 <h2 class="listTitle">Edit List</h2>
-                <div class="dropsCont">
-                    <!-- event: onChange move list to a different project -->
-                    <select name="editAllProjects" id="editAllProjects">
-                        <option value="" disabled selected>Choose a project:</option>
-                        <option value="misc">Miscellaneous</option> 
-                        <option value="newProject">New project</option>
-                    </select>
-                    <!-- event: Create new project & move list into it -->
-                    <input type="text" id="editFormProjName" placeholder="Project Name">
-                    <!-- event: onChange reassign list priority -->
-                    <select name="editPriority" id="editPriority">
-                        <option value="" disabled selected>Priority:</option>
-                        <option value="high">high</option> 
-                        <option value="normal">normal</option> 
-                        <option value="low">low</option>
-                    </select>
-                    <!-- event: onChange (?) reassign list dueDate -->
-                    <input type="text" id="editDueDate" placeholder="Due Date">
+                <div class="editTop">
+                    <div class="editLeft">
+                        <label for="editListName">List Name: </label>
+                        <input class="fields" type="text" id="editListName" placeholder="List Title">
+                        <label for="editDueDate">Deadline: </label>
+                        <input class="fields" type="text" id="editDueDate" placeholder="Due Date">
+                    </div>
+                    <div class="editRight">
+                        <label id="editFormProjNameLabel" for="editFormProjName">Project: </label>
+                        <input class="fields" type="text" id="editFormProjName" placeholder="Project Name">
+                        <select class="sfields" name="editAllProjects" id="editAllProjects">
+                            <option value="" disabled selected>Choose Project</option>
+                            <option value="New Project">New project</option>
+                            <option value="Miscellaneous">Miscellaneous</option> 
+                        </select>
+                        <label for="editPriority">Priority: </label>
+                        <select class="sfields" name="editPriority" id="editPriority">
+                            <option value="" disabled selected>Priority</option>
+                            <option value="high">high</option> 
+                            <option value="normal">normal</option> 
+                            <option value="low">low</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="dropsCont">
-                    <input type="text" id="editListName" placeholder="List Title">
                     <div class="addRmCont">
                         <button class="addRmItems" id="editAddItems"> + </button>
                         <p class="addRmLabel">tasks</p>
@@ -142,10 +138,13 @@
                     <p id="editListNameError" class="error"></p>
                 </div>
                 <ol id="editFormListItems">
-                    <li class="editListItemParent" data-id="0"><input class="editFormItem" type="text" id="editlistItem0"></li>
+                    <li id="edit0" class="editListItemParent" data-id="0"><input class="editFormItem" type="text" id="editlistItem0"></li>
                 </ol>
-                <button class="fsubmit" type="submit" id="editList">Edit List</button>
-                <button class="fsubmit" id="deleteList">Delete List</button>
+                <div class="buttonDiv">
+                    <button class="esubmit" type="submit" id="editList">Edit List</button>
+                    <button class="ecancel" id="cancelEdit">Cancel</button>
+                    <button class="edelete" id="deleteList">Delete List</button>
+                </div>
             </form>
         </div>
     </div>

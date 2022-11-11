@@ -2,20 +2,26 @@
     color: white;
 }
 input {
+    color: white;
     color: black;
 }
 ol {
     padding-inline-start: 17px;
 }
 select{
-    background-color: black;
+    background-color: #88a4a4;
+    color: black;
+    height: 24.4px;
+}
+label {
+    width:fit-content;
 }
 
 #main {
     width: 100vw;
     height: 100vh;
     display: grid;
-    grid-template: 1fr 10fr / 2fr 8fr;
+    grid-template: 1fr 10fr / minmax(200px, 2fr) 8fr;
     background-color: black;
 }
 
@@ -73,10 +79,37 @@ select{
     border-radius: 29px;
     gap: 20px;
 }
+.editTop {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.editLeft{
+    display: grid;
+    grid-template: 35px 30px / 1fr 2fr;
+    width: 250px;
+    justify-items: center;
+    align-items: center;
+    justify-content: center;
+}
+.editRight{
+    display: grid;
+    grid-template: 35px 30px / 1fr 2fr;
+    width: 220px;
+    justify-items: center;
+    align-items: center;
+    justify-content: center;
+}
 .dropsCont {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+.fields {
+    width: 135px;
+}
+.sfields {
+    width: 143px;
 }
 #formListItems {
     display:flex;
@@ -115,6 +148,51 @@ select{
     color: white;
     border: 1px solid white;
     cursor: pointer;
+}
+.buttonDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 10px 5px;
+}
+.esubmit {
+    border: none;
+    background-color:  #82aa8e;
+    color: black;
+    min-height: 30px;
+    width: 22%;
+}
+.esubmit:hover {
+    cursor: pointer;
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+}
+.ecancel {
+    border: none;
+    background-color:  #fdfdfd;
+    color: black;
+    min-height: 30px;
+    width: 22%;
+}
+.ecancel:hover {
+    cursor: pointer;
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+}
+.edelete {
+    border: none;
+    background-color: rgb(186 138 138);
+    color: black;
+    min-height: 30px;
+    width: 22%;
+}
+.edelete:hover {
+        cursor: pointer;
+        background-color: black;
+        color: white;
+        border: 1px solid white;
 }
 .fsubmit {
     border: none;
@@ -189,6 +267,7 @@ select{
     background-color: rgb(28, 30, 30);
     padding: 0 10px 0 10px;
     justify-content: flex-start;
+    padding-left: 20px;
 }
 .sideProjects{
     width: fit-content;
@@ -205,6 +284,8 @@ select{
 }
 .sideLists {
     text-decoration: none;
+    padding: 2px 0 2px 5px;
+    margin-bottom: 3px;
 }
 .sideLists:hover {
     cursor: pointer;
@@ -223,7 +304,7 @@ select{
 #content {
     grid-area: 2 / 2 / 3 / 3;
     display: grid;
-    grid-template: repeat(auto-fit, minmax(250px, 1fr))/ repeat(auto-fit, minmax(200px, 1fr));
+    grid-template: repeat(auto-fit, minmax(170px, 1fr))/ repeat(auto-fit, minmax(250px, 1fr));
     justify-content: start;
     align-items: start;
     padding: 4vh 3vw;
@@ -241,10 +322,10 @@ select{
 }
 .pvTile {
     background-color: rgb(28, 30, 30);
-    min-width: 100px;
+    min-width: 250px;
     min-height: 100px;
-    max-width: 400px;
-    max-height: 400px;
+    max-width: fit-content;
+    max-height: fit-content;
     border-radius: 20px;
     padding: 20px;
     display: flex;
