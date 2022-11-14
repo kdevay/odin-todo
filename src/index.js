@@ -35,10 +35,12 @@ addIcon.setAttribute('src', Add);
 document.getElementById('icon-cont').appendChild(addIcon);
 
 // All buttons and containers in page
-const page = { 
+const page = {  
     content: document.getElementById('content'),
     confirmDeleteForm: document.getElementById('confirmDelete'),
+    confirmMessage: document.getElementById('confirmationMessage'),
     currentView: document.getElementById('currentView'),
+    editCV: document.getElementById('editCV'),
     dropdownCont: document.getElementById('addButtons'),
     editLForm: document.getElementById('editListForm'),
     editPForm: document.getElementById('editProjForm'),
@@ -52,7 +54,7 @@ const page = {
     modalShadow: document.getElementById('modalShadow'),
     projectForm: document.getElementById('newProjForm'),
     sidebar: document.getElementById('files'),
-    edit: { 
+    edit: {  
         addItems: document.getElementById('editAddItems'),
         cancel: document.getElementById('cancelEdit'),
         dueDate: document.getElementById('editDueDate'),
@@ -78,8 +80,10 @@ const page = {
         lProjectName: document.getElementById('lFormProjName'),
         projectName: document.getElementById('projName'),
     },
-    buttons: { 
+    buttons: {
         add: addIcon,
+        delCancel: document.getElementById('cancelDelete'),
+        delConfirm: document.getElementById('deleteConfirmed'),
         displayPForm: document.getElementById('displayProjectForm'),
         displayLForm: document.getElementById('displayListForm'),
         addItems: document.getElementById('addItems'),
@@ -89,11 +93,15 @@ const page = {
         addLP: document.getElementById('listToNewProject'),
         selectProjects: document.getElementById('allProjects'),
     }, 
-    updateViewBar(isfill, name1, name2){ // Show current file view
-        if (!isfill) { // clear viewBar
+    updateViewBar(isFill, name1, name2){ // Show current file view
+        if (!isFill) { // clear viewBar
             page.currentView.textContent = '';
+            page.editCV.textContent = '';
             return;
-        } else if (!name2) {
+        }
+        if (isFill === '-  edit') page.editCV.textContent = '-  edit';
+        if (isFill === true) page.editCV.textContent = '';
+        if (!name2) {
             page.currentView.textContent = name1;
             return;
         }
@@ -117,6 +125,7 @@ const page = {
         this.hide(this.editPForm);
         this.hide(this.edit.projectField);
         this.hide(this.fields.lProjectName);
+        this.hide(this.confirmDeleteForm);
     },
     orphan(className, toDelete, type){ // Permanently remove one or more items from DOM
         let parent;
@@ -166,6 +175,13 @@ const get = {
             }
         }
         return false;
+    },
+    projectIndex(name) {
+        for (let i = 0; i < projects.length; i++) {
+            if (projects[i].name === name){
+                return i;
+            }
+        }
     },
     list(name, parentProject) { // Returns a list object
         for (let i = 0; i < parentProject.lists.length; i++) {
@@ -257,7 +273,7 @@ const form = {
         page.show(page.modal); // Display modal
         page.show(page.modalShadow); // Display modal shadow
         page.hide(page.dropdownCont); // Hide '+' menu
-        page.updateViewBar(true, 'Adding new project', false); // Show current file view
+        page.updateViewBar(false, '', ''); // Clear current file view
         page.show(page.projectForm); // Display Project form
     },
 
@@ -265,28 +281,25 @@ const form = {
         page.hide(page.modalShadow); // Hide shadow
         page.hide(page.dropdownCont); // Hide '+' menu
         page.orphan('listItemParent', 'all-1', 'list'); // Orphan list items from previous list
-        page.updateViewBar(true, 'Adding new list', false); // Show current file view
+        page.updateViewBar(false, '', ''); // Clear current file view
         page.show(page.listForm); // Display List form
     },
 
     showProjInput(e) { // Adding new project from list/edit forms 
         page.stopSub(e);
         // if show 'new project' field is selected
-        if (e.target.options[e.target.selectedIndex].text === 'New project'){
-            if (e.target === page.edit.projectDrop) {
+        if (e.target === page.edit.projectDrop) {
                 page.show(page.edit.projectField);
                 page.hide(page.edit.projectDrop);
-            } else {
+        } else if (e.target === page.fields.projDropdown) {
                 page.show(page.fields.lProjectName);
                 page.hide(page.buttons.selectProjects);
-            }
         }
+        return;
     },
 
     selectDrop(value, array) {
-        console.log('value: ', value);
         for (let i = 0; i < array.length; i++) { // Select project
-            console.log(array[i].value);
             if (array[i].selected === true && value !== array[i].value) {
                 array[i].selected = false;
             } else if (value === array[i].value) {
@@ -294,20 +307,30 @@ const form = {
             }
         }
     },
-    
-    dropProj(name, formType){ // Add new project name to dropdown
-        let parent; // Get dropdown parent container
-        if (formType === 'edit') {
-            parent = page.edit.projectDrop;// For edit form
-        } else {
-            parent = page.fields.projDropdown; // For add list form
-        }
+
+    dropProj(name) { // Add new project name to dropdowns
+        let temp1 = document.createElement('option');
         let temp = document.createElement('option');
+        temp1.setAttribute('class', 'addedProject');
+        temp1.setAttribute('value', name);
+        temp1.textContent = name;
         temp.setAttribute('class', 'addedProject');
         temp.setAttribute('value', name);
         temp.textContent = name;
-        parent.appendChild(temp);
+        page.fields.projDropdown.appendChild(temp1); // add to list form
+        page.edit.projectDrop.appendChild(temp); // add to edit form
     },
+
+    rmDropProj(name){ // Remove project name from dropdowns
+        // Get all added projects from dropdowns
+        let projects = document.getElementsByClassName('addedProject');
+        for (let i = projects.length - 1; i > -1; i--) {
+            if (projects[i].getAttribute('value') === name ){
+                projects[i].remove; // remove project
+            }
+        }
+    },
+
 
     rmListItem (e) { // Rm list item
         page.stopSub(e);
@@ -357,7 +380,13 @@ const form = {
         // If editing project
         if (dataId === 'p') { 
             page.edit.projectName.value = name;// Pre-fill form with OG name
-            page.updateViewBar(true, dataId + ' - edit', false); // Show current file view
+            //let projectName = e.target.getAttribute('data-name')
+            page.edit.listSubmit.setAttribute('data-id', 'edits' + name); // Add data to submit button
+            page.buttons.delConfirm.setAttribute('data-name', name); // Add data to confirm deletion
+            page.buttons.delConfirm.setAttribute('data-type', 'project');
+            page.updateViewBar('-  edit', dataId, false); // Show current file view
+            page.show(page.modal); // Display modal
+            page.show(page.modalShadow);
             page.show(page.editPForm);// open form
             return;
         } 
@@ -365,6 +394,11 @@ const form = {
         let projObj = get.project(dataId); 
         let list = get.list(name, projObj);
         page.edit.listSubmit.setAttribute('data-id', 'edits' + name); // Add data to submit button
+        page.buttons.delCancel.setAttribute('data-name', name); // Add data to cancel deletion
+        page.buttons.delCancel.setAttribute('data-proj', dataId);
+        page.buttons.delConfirm.setAttribute('data-name', name);// Add data to confirm deletion
+        page.buttons.delConfirm.setAttribute('data-proj', dataId);
+        page.buttons.delConfirm.setAttribute('data-type', 'list');
         page.edit.listSubmit.setAttribute('data-parent', 'edits' + dataId);
 
         // Pre-fill form with list data
@@ -382,7 +416,7 @@ const form = {
         page.orphan('tile', 'all', 'tile');
         page.orphan('lvTile', 'all', 'tile');
         page.orphan('pvTile', 'all', 'tile');
-        page.updateViewBar(true, dataId, name + ' - edit'); // Show current file view
+        page.updateViewBar('-  edit', dataId, name); // Show current file view
         page.editLForm.style.display = 'flex'; // Display edit list form
     }
 };
@@ -393,9 +427,54 @@ const display = { // Display appropriate DOM object(s)
         page.hideAll();
         page.clearForms();
     },
+
+    cancel(e) {
+        page.stopSub(e);
+        display.shadowClick(e);
+        page.updateViewBar(false, '', ''); // Clear current file view
+    },
     
-    confirm() { // Displays modal confirming project or list deletion
-        //todo
+    confirm(e) { // Displays modal confirming project or list deletion
+        page.stopSub(e);
+        let name = e.target.getAttribute('data-name');
+        if (e.target.getAttribute('data-type') === 'project') {
+            page.confirmMessage = 'You are about to delete \"' + name + '\" and every list associated with this project.';
+        } else {
+            page.confirmMessage = 'You are about to delete \"' + name + '\".';
+        }
+        page.hide(page.editPForm);
+        page.show(page.modalShadow); // Display modal
+        page.show(page.modal); 
+        page.show(page.confirmDeleteForm);
+    },
+
+    delete(e){ // Deletes list/project from dom and memory
+        page.stopSub(e);
+        page.hideAll(); // Reset to defaults
+        page.clearForms();
+        page.updateViewBar(false, '', ''); 
+        if (e.target.getAttribute('data-type') === 'project'){
+            // delete project from memory
+            let projectName = e.target.getAttribute('data-name')
+            let index = get.projectIndex(projectName);
+            projects.splice(index);
+            // delete from sidebar
+            console.log('projectName', projectName);
+            console.log('parent + projectName', 'parent' + projectName);
+            let file = document.getElementById('parent' + projectName);
+            file.remove();
+            return;
+        }
+        let listName = e.target.getAttribute('data-name');
+        let projectName = e.target.getAttribute('data-proj');
+        // delete list from memory
+        let projObj = get.project(projectName);
+        let index = get.listIndex(listName, projObj);
+        projObj.lists.splice(index);
+        // delete list from sidebar
+        let projIndex = get.projectIndex(projectName);
+        let listFile = document.getElementById(projIndex + listName);
+        listFile.remove();
     },
 
     add() { // On '+' icon click,
@@ -504,16 +583,17 @@ const display = { // Display appropriate DOM object(s)
             headingDiv.appendChild(priority);
         }
     },
-
+    
     listFile(listName, projectName) { // Add list to sidebar
         projectName = !projectName ? 'Miscellaneous' : projectName; // Default to miscellaneous
         let parent = document.getElementById('sideUl' + projectName);// Get parent element
         let list = document.createElement('li'); 
+        let projIndex = get.projectIndex(projectName);
         list.textContent = listName; 
         list.setAttribute('data-proj', projectName); // Add data to element
         list.setAttribute('data-id', listName);
         list.setAttribute('class', 'sideLists');
-        list.setAttribute('id', 'sideLi' + listName);
+        list.setAttribute('id', projIndex + listName);
         list.addEventListener('click', this.listView);
         parent.appendChild(list);
     },
@@ -543,7 +623,7 @@ const display = { // Display appropriate DOM object(s)
         hCont.appendChild(project);
         hCont.appendChild(editButton); 
         div.appendChild(list);
-        updateViewBar(false, '', ''); // Update current file view
+        page.updateViewBar(false, '', ''); // Clear current file view
     },
 
     editedListFile(name, OGname, projName, OGprojName, hasMoved){
@@ -560,7 +640,7 @@ const display = { // Display appropriate DOM object(s)
         listFile.textContent = name;
         listFile.setAttribute('data-id', name);
         listFile.setAttribute('id', 'sideLi' + name);
-        page.updateViewBar(false, '', ''); // Update current file view
+        page.updateViewBar(false, '', ''); // Clear current file view
     }
 };
 
@@ -572,10 +652,12 @@ const addNew = {
         
         // Validate project name
         if (!validate.name(projectName, projects, 'project', false)) return false; 
-        form.dropProj(projectName, '')// Add project to dropdown
+
+        //This line of code is not working properly
+        form.dropProj(projectName)// Add project to dropdown
         projects.push(new Project (projectName, [])); // Add project to projects
         display.projectFile(projectName); // Add project to sidebar
-        page.updateViewBar(false, '', ''); // Update current file view
+        page.updateViewBar(false, '', ''); // Clear current file view
         page.hideAll(); // Reset Defaults
         page.clearForms();
     },
@@ -597,7 +679,7 @@ const addNew = {
             if (!validate.name(projectName, projects, 'project', true)) return;
             
             // Add project to dropdown, 'projects' array, and sidebar
-            form.dropProj(projectName, '');  
+            form.dropProj(projectName);  
             projects.push(new Project (projectName, [])); 
             display.projectFile(projectName); //  
 
@@ -615,15 +697,36 @@ const addNew = {
         listObj = new List (listName, dueDate, priority, items);// Construct new list
         projectObj.lists.push(listObj); // Add list to parent
         display.listFile(listName, projectName);// Add list to sidebar 
-        page.updateViewBar(false, '', ''); // Update current file view
+        page.updateViewBar(false, '', ''); // Clear current file view
         page.orphan('editLi', 'all-1', 'edit'); // Remove extra list fields
         page.show(page.buttons.selectProjects); // Restore dropdown
         page.hideAll();
         page.clearForms();
     },
 
-    editedProject() { // When project edit form is submitted
-        console.log('to do');
+    editedProject(e) { // When project edit form is submitted
+        page.stopSub(e);
+        // Update memory
+        let newName = page.edit.projectName;
+        let OGName = e.target.getAttribute('data-id').slice(5);
+        let index = get.projectIndex(OGName)
+        projects[index].name = newName; // Update project in projects array
+
+        // Update sidebar
+        let OGfile = document.getElementById('parent' + OGName);
+        page.sidebar.removeChild(file); // Delete OG project file
+        display.projectFile(OGfile); // Rebuild project file
+        // Rebuild list files
+        let listFiles = projects[index].lists;
+        for (let i = 0; i < listFiles.length; i++) {
+            display.listFile(listFiles[i].name, newName);
+        }
+        // remove og project from dropdown and add new
+        form.dropProj(newName);
+        form.rmDropProj(OGName);
+        page.updateViewBar(false, '', ''); // Clear current file view
+        page.clearForms();
+        page.hideAll();
     },
 
     editedList(e) {  // Add edited list to memory
@@ -652,7 +755,7 @@ const addNew = {
             projName = page.edit.projectField.value;
             if (!validate.name(projName, projects, 'project', true)) return;
 
-            form.dropProj(projName, 'edit') // Add project to dropdown & projects
+            form.dropProj(projName) // Add project to dropdown & projects
             projects.push(new Project (projName, []));
             display.projectFile(projName); // Update DOM
         
@@ -678,9 +781,9 @@ const addNew = {
         } else { 
             projObjOG.lists[index] = newList; // Replace OG list with new list
         }
-        // Remove OG list from && add new list to DOM
+        // Remove OG list from && add new list to sidebar
         display.editedListFile(listName, listNameOG, projName, projNameOG, hasMoved);
-        page.updateViewBar(false, '', ''); // Update current file view
+        page.updateViewBar(false, '', ''); // Clear current file view
         page.show(page.edit.projectDrop); // Reset to defaults
         page.orphan('editListItemParent', 'all-1', 'edit') // Orphan list items
         page.clearForms();// Clear edit form
@@ -699,12 +802,16 @@ page.buttons.rmItems.addEventListener('click', form.rmListItem);
 page.buttons.addList.addEventListener('click', addNew.list); // List & project form submission
 page.buttons.addProject.addEventListener('click', addNew.project);
 page.buttons.selectProjects.addEventListener('change', form.showProjInput); // Proj creation in list form
-page.edit.projectDrop.addEventListener('change', form.showProjInput);
+page.edit.projectDrop.addEventListener('change', form.showProjInput);// Proj creation in edit form 
 page.edit.addItems.addEventListener('click', form.addListItem); // '+' & '-' list item (edit form)
 page.edit.rmItems.addEventListener('click', form.rmListItem);
 page.edit.listSubmit.addEventListener('click', addNew.editedList); // Edit form submission
 page.edit.projectSubmit.addEventListener('click', addNew.editedProject);
-page.edit.cancel.addEventListener('click', display.shadowClick);
+page.edit.cancel.addEventListener('click', display.cancel);
+page.edit.rmList.addEventListener('click', display.confirm); // Confirm deletion
+page.edit.rmProject.addEventListener('click', display.confirm);
+page.buttons.delCancel.addEventListener('click', display.cancel);
+page.buttons.delConfirm.addEventListener('click', display.delete);
 
 
 // Set Defaults

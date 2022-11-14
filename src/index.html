@@ -31,29 +31,39 @@
                     <input type="text" id="editProjName">
                     <p id="editProjNameError" class="error"></p>
                 </div>
-                <button class="psubmit" type="submit" id="editProject">Edit Project</button>
-                <button class="psubmit" id="deleteProject">Delete Project</button>
+                <div class="buttonDiv">
+                    <button class="esubmit" type="submit" id="editProject">Edit Project</button>
+                    <button data-type="project"  class="edelete" id="deleteProject">Delete Project</button>
+                </div>
             </form>
             <!-- confirm deletion (?) -->
             <form class="dform" id="confirmDelete">
                 <h2 class="listTitle">Are you sure?</h2>
                 <div>
-                    <p id="confirmation message">You're about to delete this project along with all of it's lists.</p>
+                    <p id="confirmationMessage"></p>
                     <p>This action is permanent and irreversible.</p>
+                </div> 
+                <div class="buttonDiv">
+                    <button class="edelete" type="submit" id="deleteConfirmed">delete</button>
+                    <button class="ecancel" id="cancelDelete">cancel</button>
                 </div>
-                <button class="psubmit" type="submit" id="editProject">delete</button>
-                <button class="psubmit" id="deleteProject">cancel</button>
+                
             </form>
         </div>
-        
+
+
         <div id="top"> 
-            <h2 id="currentView"></h2>
+            <div class="currentViewCont">
+                <h2 id="currentView"></h2>&nbsp;&nbsp;
+                <h2 id="editCV" style="font-style: italic;"></h2>
+            </div>
             <div id="icon-cont"></div>
             <div id="addButtons">
                 <button class="dispFormButton" id="displayListForm">+List</button>
                 <button class="dispFormButton" id="displayProjectForm">+Project</button>
             </div>
         </div>
+
 
         <div id="sidebar"> 
             <h1>To Do</h1>
@@ -62,8 +72,9 @@
                 <h2>Projects</h2> <br>
                 <!-- expanding file tree --> 
             </div>
-
         </div>
+
+
         <div id="content">
             <!-- new list form-->
             <form class="form" id="newListForm">
@@ -143,10 +154,11 @@
                 <div class="buttonDiv">
                     <button class="esubmit" type="submit" id="editList">Edit List</button>
                     <button class="ecancel" id="cancelEdit">Cancel</button>
-                    <button class="edelete" id="deleteList">Delete List</button>
+                    <button data-type="list" class="edelete" id="deleteList">Delete List</button>
                 </div>
             </form>
         </div>
     </div>
 </body>
 </html>
+
