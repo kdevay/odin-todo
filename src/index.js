@@ -1,5 +1,6 @@
 // TODO: x
 // local storage save
+// Date dropdown
 import './style.css';
 import './normalize.css';
 import Add from './add.png';
@@ -20,6 +21,7 @@ class List {
     this.priority = priority;
     this.items = items;
 }};
+
 // Add default file
 const misc = new Project ('Miscellaneous', []);
 projects.push(misc);
@@ -30,6 +32,7 @@ addIcon.setAttribute('class', 'icon');
 addIcon.setAttribute('id', 'plus');
 addIcon.setAttribute('src', Add);
 document.getElementById('icon-cont').appendChild(addIcon);
+
 
 // All buttons and containers in page
 const page = {  
@@ -215,6 +218,9 @@ const get = {
     lastElement(className){ // Returns last element in an HTML collection
         let elements = document.getElementsByClassName(className);
         return !elements.length ? false : elements[elements.length - 1];
+    },
+    formatDate(string) { // Convert YYYY-MM-DD to MM/DD/YY
+        return string.slice(5, 7) + '/' + string.slice(8) + '/' + string.slice(2, 4);
     }
 };
 
@@ -494,6 +500,7 @@ const display = { // Display appropriate DOM object(s)
         page.updateViewBar(true, projectName, listName); // Update current file view
         let projectObj = get.project(projectName); // Get project and list objects
         let listObj = get.list(listName, projectObj);
+        let deadline = get.formatDate(listObj.dueDate); // Get deadline
 
         // Dynamically create tile
         const tile = document.createElement('div'); // tile
@@ -514,7 +521,7 @@ const display = { // Display appropriate DOM object(s)
         priority.textContent = 'Priority:  ' + listObj.priority;
         const due = document.createElement('h5'); // Deadline
         due.setAttribute('class', 'lvSubhead')
-        due.textContent = 'Deadline:  ' + listObj.dueDate;
+        due.textContent = 'Deadline:  ' + deadline;
         const checkCont = document.createElement('ol'); // List container
         checkCont.setAttribute('class', 'checkContainer')
         page.content.appendChild(tile); // Add to DOM
@@ -573,7 +580,7 @@ const display = { // Display appropriate DOM object(s)
             listTitle.textContent = projectObj.lists[i].name;
             let deadline = document.createElement('h5'); // Deadline
             deadline.setAttribute('class', 'deadline');
-            deadline.textContent = 'Due: ' + projectObj.lists[i].dueDate;
+            deadline.textContent = 'Due: ' + get.formatDate(projectObj.lists[i].dueDate);
             let priority = document.createElement('h5'); // Priority
             priority.setAttribute('class', 'deadline');
             priority.textContent = 'Priority: ' + projectObj.lists[i].priority;
@@ -627,21 +634,23 @@ const display = { // Display appropriate DOM object(s)
         page.updateViewBar(false, '', ''); // Clear current file view
     },
     // Deletes/Updates edited list files
-    editedListFile(name, OGname, projName, OGprojName, index, hasMoved){
-        // get list File
+    editedListFile(listName, projName, OGname, OGprojName, hasMoved){
+        let index = get.projectIndex(OGprojName);
         let listFile = document.getElementById(index + OGname);
         let parent;
         if (hasMoved) { 
             parent = document.getElementById('sideUl' + OGprojName);
+            console.log('parent', parent);
+            console.log('listFile', listFile);
             parent.removeChild(listFile); // Orphan OG file
-            display.listFile(name, projName); // Add new list to DOM 
+            display.listFile(listName, projName); // Add new list to DOM 
             return;
         }
         // If has not moved, replace OG file data with new data
         parent = document.getElementById('sideUl' + projName);
-        listFile.textContent = name;
-        listFile.setAttribute('data-id', name);
-        listFile.setAttribute('id', 'sideLi' + name);
+        listFile.textContent = listName;
+        listFile.setAttribute('data-id', listName);
+        listFile.setAttribute('id', index + listName);
         page.updateViewBar(false, '', ''); // Clear current file view
     }
 };
@@ -784,7 +793,7 @@ const addNew = {
             projObjOG.lists[index] = newList; // Replace OG list with new list
         }
         // Remove OG list from && add new list to sidebar
-        display.editedListFile(listName, listNameOG, projName, projNameOG, index, hasMoved);
+        display.editedListFile(listName, projName, listNameOG, projNameOG, hasMoved);
         page.updateViewBar(false, '', ''); // Clear current file view
         page.show(page.edit.projectDrop); // Reset to defaults
         page.orphan('editListItemParent', 'all-1', 'edit') // Orphan list items
