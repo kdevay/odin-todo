@@ -1,7 +1,4 @@
 // TODO: x
-// edit button -started
-// edit form  w/ save + delete buttons -started
-// delete buttons -started
 // local storage save
 import './style.css';
 import './normalize.css';
@@ -258,10 +255,9 @@ const update = {
     isCheckedStatus(e) {
         let checked = e.target.checked ? true : false; // Check if box is checked
         // Get project > get list > get list item
+        let listName = e.target.getAttribute('name');
+        let itemIndex = e.target.getAttribute('data-index');
         let projectObj = get.project(e.target.getAttribute('data-id'));
-        let nameID = e.target.getAttribute('name');
-        let listName = nameID.slice(0, (nameID.length - 1));
-        let itemIndex = nameID.slice(nameID.length - 1);
         let listObject = get.list(listName, projectObj);
         listObject.items[itemIndex].isChecked = checked; // Update check status
     }, 
@@ -287,18 +283,21 @@ const form = {
 
     showProjInput(e) { // Adding new project from list/edit forms 
         page.stopSub(e);
+        console.log('e.target.value: ', e.target.value);
         // if show 'new project' field is selected
-        if (e.target === page.edit.projectDrop) {
+        if (e.target.value === 'New Project') {
+            if (e.target === page.edit.projectDrop) {
                 page.show(page.edit.projectField);
                 page.hide(page.edit.projectDrop);
-        } else if (e.target === page.fields.projDropdown) {
+            } else {
                 page.show(page.fields.lProjectName);
                 page.hide(page.buttons.selectProjects);
+            }
         }
-        return;
+    
     },
 
-    selectDrop(value, array) {
+    selectDrop(value, array) { // Pre-select a dropdown element in a form
         for (let i = 0; i < array.length; i++) { // Select project
             if (array[i].selected === true && value !== array[i].value) {
                 array[i].selected = false;
@@ -379,9 +378,10 @@ const form = {
         let name = e.target.getAttribute('id').slice(4);
         // If editing project
         if (dataId === 'p') { 
+            // If editing default project, hide delete button
+            page.edit.rmProject.style.display = get.projectIndex(name) === 0 ? 'none' : 'block'
             page.edit.projectName.value = name;// Pre-fill form with OG name
-            //let projectName = e.target.getAttribute('data-name')
-            page.edit.listSubmit.setAttribute('data-id', 'edits' + name); // Add data to submit button
+            page.edit.projectSubmit.setAttribute('data-id', name); // Add name to submit button
             page.buttons.delConfirm.setAttribute('data-name', name); // Add data to confirm deletion
             page.buttons.delConfirm.setAttribute('data-type', 'project');
             page.updateViewBar('-  edit', dataId, false); // Show current file view
@@ -393,13 +393,13 @@ const form = {
         // If editing list
         let projObj = get.project(dataId); 
         let list = get.list(name, projObj);
-        page.edit.listSubmit.setAttribute('data-id', 'edits' + name); // Add data to submit button
+        page.edit.listSubmit.setAttribute('data-id', name); // Add data to submit button
+        page.edit.listSubmit.setAttribute('data-parent', dataId);
         page.buttons.delCancel.setAttribute('data-name', name); // Add data to cancel deletion
         page.buttons.delCancel.setAttribute('data-proj', dataId);
         page.buttons.delConfirm.setAttribute('data-name', name);// Add data to confirm deletion
         page.buttons.delConfirm.setAttribute('data-proj', dataId);
         page.buttons.delConfirm.setAttribute('data-type', 'list');
-        page.edit.listSubmit.setAttribute('data-parent', 'edits' + dataId);
 
         // Pre-fill form with list data
         page.edit.listName.setAttribute('value', name); // Name
@@ -532,7 +532,8 @@ const display = { // Display appropriate DOM object(s)
             let tempCheck = document.createElement('input'); // Checkbox
             tempCheck.setAttribute('type', 'checkbox');
             tempCheck.setAttribute('class', 'checkbox');
-            tempCheck.setAttribute('name', listName + i);
+            tempCheck.setAttribute('name', listName);
+            tempCheck.setAttribute('data-index', i);
             tempCheck.setAttribute('data-id', projectName);
             if (listObj.items[i].isChecked) { // Add checkbox value
                 tempCheck.checked = true;
@@ -625,9 +626,10 @@ const display = { // Display appropriate DOM object(s)
         div.appendChild(list);
         page.updateViewBar(false, '', ''); // Clear current file view
     },
-
-    editedListFile(name, OGname, projName, OGprojName, hasMoved){
-        let listFile = document.getElementById('sideLi' + OGname)
+    // Deletes/Updates edited list files
+    editedListFile(name, OGname, projName, OGprojName, index, hasMoved){
+        // get list File
+        let listFile = document.getElementById(index + OGname);
         let parent;
         if (hasMoved) { 
             parent = document.getElementById('sideUl' + OGprojName);
@@ -691,7 +693,7 @@ const addNew = {
         let projectObj = get.project(projectName); // Get project object
 
         // Set priority default value & validate list Name
-        let priority = get.dropdownValue(page.fields.priority) === '' ?  'normal' : priority; 
+        let priority = get.dropdownValue(page.fields.priority) === '' ?  'normal' : get.dropdownValue(page.fields.priority); 
         if (!validate.name(listName, projectObj.lists, 'list', true)) return;
         
         listObj = new List (listName, dueDate, priority, items);// Construct new list
@@ -707,15 +709,15 @@ const addNew = {
     editedProject(e) { // When project edit form is submitted
         page.stopSub(e);
         // Update memory
-        let newName = page.edit.projectName;
-        let OGName = e.target.getAttribute('data-id').slice(5);
+        let newName = page.edit.projectName.value;
+        let OGName = e.target.getAttribute('data-id');
         let index = get.projectIndex(OGName)
         projects[index].name = newName; // Update project in projects array
 
         // Update sidebar
         let OGfile = document.getElementById('parent' + OGName);
-        page.sidebar.removeChild(file); // Delete OG project file
-        display.projectFile(OGfile); // Rebuild project file
+        page.sidebar.removeChild(OGfile); // Delete OG project file
+        display.projectFile(newName); // Rebuild project file
         // Rebuild list files
         let listFiles = projects[index].lists;
         for (let i = 0; i < listFiles.length; i++) {
@@ -732,8 +734,8 @@ const addNew = {
     editedList(e) {  // Add edited list to memory
         page.stopSub(e);
         // Get OG list data from button 
-        let listNameOG = e.target.getAttribute('data-id').slice(5);
-        let projNameOG = e.target.getAttribute('data-parent').slice(5);
+        let listNameOG = e.target.getAttribute('data-id');
+        let projNameOG = e.target.getAttribute('data-parent');
         let projObjOG = get.project(projNameOG);
         let listObjOG = get.list(listNameOG, projObjOG);
 
@@ -782,7 +784,7 @@ const addNew = {
             projObjOG.lists[index] = newList; // Replace OG list with new list
         }
         // Remove OG list from && add new list to sidebar
-        display.editedListFile(listName, listNameOG, projName, projNameOG, hasMoved);
+        display.editedListFile(listName, listNameOG, projName, projNameOG, index, hasMoved);
         page.updateViewBar(false, '', ''); // Clear current file view
         page.show(page.edit.projectDrop); // Reset to defaults
         page.orphan('editListItemParent', 'all-1', 'edit') // Orphan list items
