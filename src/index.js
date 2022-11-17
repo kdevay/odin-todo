@@ -1,13 +1,10 @@
 // TODO: x
 // local storage save
-// Date dropdown
 import './style.css';
 import './normalize.css';
 import Add from './add.png';
 import Dots from './dots.png';
 
-// projects
-const projects = [];
 class Project { 
     constructor (name, lists) {
     this.name = name;
@@ -22,11 +19,20 @@ class List {
     this.items = items;
 }};
 
-// Add default file
-const misc = new Project ('Miscellaneous', []);
-projects.push(misc);
+// If projects is in local storage, parse it. Else it is an array literal
+let projects, misc, displayFlag;
+if (localStorage.getItem('projects')) {
+    projects = JSON.parse(localStorage.getItem('projects'));
+    displayFlag = true;
+} else { 
+    // Create default file
+    misc = new Project ('Miscellaneous', []);
+    projects = [misc];
+    localStorage.setItem('projects', JSON.stringify(projects))// Add to local storage
+    displayFlag = false;
+}
 
-// Add '+' icon
+// Add '+' icon to DOM
 const addIcon = document.createElement('img'); // Add new list/project
 addIcon.setAttribute('class', 'icon');
 addIcon.setAttribute('id', 'plus');
@@ -289,7 +295,6 @@ const form = {
 
     showProjInput(e) { // Adding new project from list/edit forms 
         page.stopSub(e);
-        console.log('e.target.value: ', e.target.value);
         // if show 'new project' field is selected
         if (e.target.value === 'New Project') {
             if (e.target === page.edit.projectDrop) {
@@ -443,6 +448,7 @@ const display = { // Display appropriate DOM object(s)
     confirm(e) { // Displays modal confirming project or list deletion
         page.stopSub(e);
         let name = e.target.getAttribute('data-name');
+        ///UNICORN
         if (e.target.getAttribute('data-type') === 'project') {
             page.confirmMessage = 'You are about to delete \"' + name + '\" and every list associated with this project.';
         } else {
@@ -465,8 +471,6 @@ const display = { // Display appropriate DOM object(s)
             let index = get.projectIndex(projectName);
             projects.splice(index);
             // delete from sidebar
-            console.log('projectName', projectName);
-            console.log('parent + projectName', 'parent' + projectName);
             let file = document.getElementById('parent' + projectName);
             file.remove();
             return;
@@ -593,7 +597,7 @@ const display = { // Display appropriate DOM object(s)
     },
     
     listFile(listName, projectName) { // Add list to sidebar
-        projectName = !projectName ? 'Miscellaneous' : projectName; // Default to miscellaneous
+        projectName = !projectName ? projects[0].name : projectName; // Default to miscellaneous
         let parent = document.getElementById('sideUl' + projectName);// Get parent element
         let list = document.createElement('li'); 
         let projIndex = get.projectIndex(projectName);
@@ -640,8 +644,6 @@ const display = { // Display appropriate DOM object(s)
         let parent;
         if (hasMoved) { 
             parent = document.getElementById('sideUl' + OGprojName);
-            console.log('parent', parent);
-            console.log('listFile', listFile);
             parent.removeChild(listFile); // Orphan OG file
             display.listFile(listName, projName); // Add new list to DOM 
             return;
@@ -667,6 +669,7 @@ const addNew = {
         //This line of code is not working properly
         form.dropProj(projectName)// Add project to dropdown
         projects.push(new Project (projectName, [])); // Add project to projects
+        localStorage.setItem('projects', JSON.stringify(projects))// Update local storage
         display.projectFile(projectName); // Add project to sidebar
         page.updateViewBar(false, '', ''); // Clear current file view
         page.hideAll(); // Reset Defaults
@@ -697,7 +700,7 @@ const addNew = {
         } else { // If adding list to existing project 
             // Get project value from dropdown
             projectName = get.dropdownValue(page.fields.projDropdown);
-            projectName = !projectName ? 'Miscellaneous' : projectName; 
+            projectName = !projectName ? projects[0].name : projectName;
         }
         let projectObj = get.project(projectName); // Get project object
 
@@ -707,6 +710,7 @@ const addNew = {
         
         listObj = new List (listName, dueDate, priority, items);// Construct new list
         projectObj.lists.push(listObj); // Add list to parent
+        localStorage.setItem('projects', JSON.stringify(projects))// Update local storage
         display.listFile(listName, projectName);// Add list to sidebar 
         page.updateViewBar(false, '', ''); // Clear current file view
         page.orphan('editLi', 'all-1', 'edit'); // Remove extra list fields
@@ -722,6 +726,7 @@ const addNew = {
         let OGName = e.target.getAttribute('data-id');
         let index = get.projectIndex(OGName)
         projects[index].name = newName; // Update project in projects array
+        localStorage.setItem('projects', JSON.stringify(projects))// Update local storage
 
         // Update sidebar
         let OGfile = document.getElementById('parent' + OGName);
@@ -792,6 +797,7 @@ const addNew = {
         } else { 
             projObjOG.lists[index] = newList; // Replace OG list with new list
         }
+        localStorage.setItem('projects', JSON.stringify(projects))// Update local storage
         // Remove OG list from && add new list to sidebar
         display.editedListFile(listName, projName, listNameOG, projNameOG, hasMoved);
         page.updateViewBar(false, '', ''); // Clear current file view
@@ -802,6 +808,20 @@ const addNew = {
     }
 
 };
+
+
+// If building page from local storage
+if (displayFlag) {
+    // build out sidebar
+    for (let i = 0; i < projects.length; i++) {
+        let projectName = projects[i].name
+        display.projectFile(projectName) // Add project to sidebar
+        for (let j = 0; j < projects[i].lists.length; j++) {
+            display.listFile(projects[i].lists[j].name, projectName)// Add list to sidebar 
+        }
+    }
+}
+
 
 // Events ////////////////////////////////////////////////////////
 addIcon.addEventListener('click', display.add); // '+' icon menu display
