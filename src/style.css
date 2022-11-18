@@ -66,8 +66,10 @@ label {
 .dform { 
     display: none;
     flex-direction: column;
+    width: 90%;
     border-radius: 30px;
     gap: 20px;
+    padding: 20px;
 }
 .form {
     display: flex;
@@ -109,6 +111,9 @@ label {
 }
 .sfields {
     width: 143px;
+}
+.editListItemParent {
+    margin-bottom: 5px;
 }
 #formListItems {
     display:flex;
@@ -239,7 +244,7 @@ label {
     box-shadow: 0 0 10px 7px  rgb(43, 46, 46);
 }
 .dots {
-    margin: 10px;
+    padding: 10px;
     max-width: 20px;
     max-height: 20px;
 }
@@ -274,12 +279,25 @@ label {
     display: flex;
     flex-direction: column;
     background-color: rgb(28, 30, 30);
-    padding: 0 10px 0 10px;
+    padding-left: 10px;
     justify-content: flex-start;
     padding-left: 20px;
 }
+#files {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.projParentDiv {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-content: space-between;
+}
 .sideProjects{
     width: fit-content;
+    height: fit-content;
+    margin: 5px 0px;
 }
 .sideProjects:hover {
     cursor: pointer;
@@ -305,8 +323,8 @@ label {
     display: flex;
     justify-content: space-between;
     align-content: space-between;
-    align-items: center;
-    height: 40px;
+    align-items: flex-start;
+    height: fit-content;
 }
 
 
@@ -396,11 +414,16 @@ input.checkbox{
     height: 100%;
     justify-content: space-between;
 }
-.listItem{
+.listItem {
     margin: 0px;
 }
 
-.error{
+.error {
     display: none;
     color: #ff9797;;
+}
+#insertName {
+    font-style: italic;
+    font-weight: 900;
+    color: #a1c1b9;
 }

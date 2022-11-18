@@ -19,16 +19,16 @@ class List {
     this.items = items;
 }};
 
-// If projects is in local storage, parse it. Else it is an array literal
 let projects, misc, displayFlag;
-if (localStorage.getItem('projects')) {
+// If projects is in local storage
+if (localStorage.getItem('projects') && JSON.parse(localStorage.getItem('projects')).length !== 0) {
+    // Get projects from local storage
     projects = JSON.parse(localStorage.getItem('projects'));
-    displayFlag = true;
+    displayFlag = true; // Set flag to populate sidebar
 } else { 
-    // Create default file
-    misc = new Project ('Miscellaneous', []);
-    projects = [misc];
-    localStorage.setItem('projects', JSON.stringify(projects))// Add to local storage
+    misc = new Project ('Miscellaneous', []); // Create default file
+    projects = [misc]; // Add default file to projects array
+    localStorage.setItem('projects', JSON.stringify(projects))// Update local storage
     displayFlag = false;
 }
 
@@ -76,7 +76,7 @@ const page = {
         projectSubmit: document.getElementById('editProject'), // pform
         rmItems: document.getElementById('editRmItems'),
         rmList: document.getElementById('deleteList'),
-        rmProject: document.getElementById('deleteProject')// pform
+        rmProject: document.getElementById('deleteProject')// pform 
     },
     fields: { 
         projDropdown: document.getElementById('allProjects'),
@@ -272,6 +272,7 @@ const update = {
         let projectObj = get.project(e.target.getAttribute('data-id'));
         let listObject = get.list(listName, projectObj);
         listObject.items[itemIndex].isChecked = checked; // Update check status
+        localStorage.setItem('projects', JSON.stringify(projects)); // Update local storage
     }, 
 };
 
@@ -286,8 +287,9 @@ const form = {
     },
 
     list() { // On '+list' button click
-        page.hide(page.modalShadow); // Hide shadow
-        page.hide(page.dropdownCont); // Hide '+' menu
+        page.hideAll(); // Clear display content
+        page.orphan('pvTile', 'all', 'tile');
+        page.orphan('tile', 'all', 'tile');
         page.orphan('listItemParent', 'all-1', 'list'); // Orphan list items from previous list
         page.updateViewBar(false, '', ''); // Clear current file view
         page.show(page.listForm); // Display List form
@@ -342,11 +344,11 @@ const form = {
     },
 
 
-    rmListItem (e) { // Rm list item
+    rmListItem(e) { // Rm list item
         page.stopSub(e);
         // Set values based on form type
         if (e.target.getAttribute('id') === 'editRmItems') { // For edit form
-            page.orphan('eListItemParent', 1, 'edit');
+            page.orphan('editListItemParent', 1, 'edit');
             return;
         }// For list form
         page.orphan('listItemParent', 1, 'list');
@@ -395,6 +397,7 @@ const form = {
             page.edit.projectSubmit.setAttribute('data-id', name); // Add name to submit button
             page.buttons.delConfirm.setAttribute('data-name', name); // Add data to confirm deletion
             page.buttons.delConfirm.setAttribute('data-type', 'project');
+            page.edit.rmProject.setAttribute('data-name', name); // Add data to delete button
             page.updateViewBar('-  edit', dataId, false); // Show current file view
             page.show(page.modal); // Display modal
             page.show(page.modalShadow);
@@ -411,16 +414,18 @@ const form = {
         page.buttons.delConfirm.setAttribute('data-name', name);// Add data to confirm deletion
         page.buttons.delConfirm.setAttribute('data-proj', dataId);
         page.buttons.delConfirm.setAttribute('data-type', 'list');
+        page.edit.rmList.setAttribute('data-name', name); // Add data to delete button
 
         // Pre-fill form with list data
         page.edit.listName.setAttribute('value', name); // Name
         page.edit.dueDate.setAttribute('value', list.dueDate); // Deadline
         form.selectDrop(dataId, page.edit.projectDrop); // Project name
         form.selectDrop(list.priority, page.edit.priority); // Priority
-        // Add first list item to form
-        page.edit.firstInput.value = list.items[0].name;
-        for (let i = 1; i < list.items.length; i++) { // List Items
-            let tempLi = form.addListItem('editLi');
+        // Pre-fill list items
+        page.orphan('editListItemParent', 'all-1', 'edit'); // Orphan old list items
+        page.edit.firstInput.value = list.items[0].name;// Add first list item to form
+        for (let i = 1; i < list.items.length; i++) { 
+            let tempLi = form.addListItem('editLi'); // Add remaining Items
             tempLi.setAttribute('value', list.items[i].name);
         }
         page.hideAll(); // Clear display
@@ -448,11 +453,10 @@ const display = { // Display appropriate DOM object(s)
     confirm(e) { // Displays modal confirming project or list deletion
         page.stopSub(e);
         let name = e.target.getAttribute('data-name');
-        ///UNICORN
         if (e.target.getAttribute('data-type') === 'project') {
-            page.confirmMessage = 'You are about to delete \"' + name + '\" and every list associated with this project.';
+            page.confirmMessage.innerHTML = 'You are about to delete  <span id="insertName">' + name + '</span>  and every list associated with this project.';
         } else {
-            page.confirmMessage = 'You are about to delete \"' + name + '\".';
+            page.confirmMessage.innerHTML = 'You are about to delete  <span id="insertName">' + name + '</span>.';
         }
         page.hide(page.editPForm);
         page.show(page.modalShadow); // Display modal
@@ -466,23 +470,21 @@ const display = { // Display appropriate DOM object(s)
         page.clearForms();
         page.updateViewBar(false, '', ''); 
         if (e.target.getAttribute('data-type') === 'project'){
-            // delete project from memory
-            let projectName = e.target.getAttribute('data-name')
+            let projectName = e.target.getAttribute('data-name') // Delete project from memory
             let index = get.projectIndex(projectName);
             projects.splice(index);
-            // delete from sidebar
-            let file = document.getElementById('parent' + projectName);
+            localStorage.setItem('projects', JSON.stringify(projects)); // Update local storage
+            let file = document.getElementById('parent' + projectName); // Delete from sidebar
             file.remove();
             return;
         }
         let listName = e.target.getAttribute('data-name');
         let projectName = e.target.getAttribute('data-proj');
-        // delete list from memory
-        let projObj = get.project(projectName);
+        let projObj = get.project(projectName);// delete list from memory
         let index = get.listIndex(listName, projObj);
         projObj.lists.splice(index);
-        // delete list from sidebar
-        let projIndex = get.projectIndex(projectName);
+        localStorage.setItem('projects', JSON.stringify(projects)); // Update local storage
+        let projIndex = get.projectIndex(projectName); // delete list from sidebar
         let listFile = document.getElementById(projIndex + listName);
         listFile.remove();
     },
@@ -614,6 +616,7 @@ const display = { // Display appropriate DOM object(s)
         // Create Div and heading elements
         let div = document.createElement('div'); // Project container
         div.setAttribute('id', 'parent' + name);
+        div.setAttribute('class', 'projParentDiv');
         let hCont = document.createElement('div');//  Header container
         hCont.setAttribute('class', 'hedspace');
         let project = document.createElement('h3'); // Project header
@@ -809,17 +812,20 @@ const addNew = {
 
 };
 
-
 // If building page from local storage
 if (displayFlag) {
     // build out sidebar
     for (let i = 0; i < projects.length; i++) {
         let projectName = projects[i].name
+        form.dropProj(projectName) // Add projects to dropdown
         display.projectFile(projectName) // Add project to sidebar
         for (let j = 0; j < projects[i].lists.length; j++) {
             display.listFile(projects[i].lists[j].name, projectName)// Add list to sidebar 
         }
     }
+} else {
+    form.dropProj(misc.name) // Add default file to dropdown and sidebar
+    display.projectFile(misc.name); 
 }
 
 
@@ -845,6 +851,5 @@ page.buttons.delCancel.addEventListener('click', display.cancel);
 page.buttons.delConfirm.addEventListener('click', display.delete);
 
 
-// Set Defaults
-page.hideAll();
-display.projectFile(misc.name);
+    // Set Defaults
+    page.hideAll();
