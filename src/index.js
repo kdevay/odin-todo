@@ -36,8 +36,10 @@ if (localStorage.getItem('projects') && JSON.parse(localStorage.getItem('project
 const addIcon = document.createElement('img'); // Add new list/project
 addIcon.setAttribute('class', 'icon');
 addIcon.setAttribute('id', 'plus');
+addIcon.setAttribute('title', 'New List / Project');
 addIcon.setAttribute('src', Add);
 document.getElementById('icon-cont').appendChild(addIcon);
+
 
 
 // All buttons and containers in page
@@ -335,10 +337,10 @@ const form = {
 
     rmDropProj(name){ // Remove project name from dropdowns
         // Get all added projects from dropdowns
-        let projects = document.getElementsByClassName('addedProject');
-        for (let i = projects.length - 1; i > -1; i--) {
-            if (projects[i].getAttribute('value') === name ){
-                projects[i].remove; // remove project
+        let addedProjects = document.getElementsByClassName('addedProject');
+        for (let i = addedProjects.length - 1; i > -1; i--) {
+            if (addedProjects[i].getAttribute('value') === name ){
+                addedProjects[i].remove(); // remove project
             }
         }
     },
@@ -398,7 +400,7 @@ const form = {
             page.buttons.delConfirm.setAttribute('data-name', name); // Add data to confirm deletion
             page.buttons.delConfirm.setAttribute('data-type', 'project');
             page.edit.rmProject.setAttribute('data-name', name); // Add data to delete button
-            page.updateViewBar('-  edit', dataId, false); // Show current file view
+            page.updateViewBar('-  edit', name, false); // Show current file view
             page.show(page.modal); // Display modal
             page.show(page.modalShadow);
             page.show(page.editPForm);// open form
@@ -442,6 +444,9 @@ const display = { // Display appropriate DOM object(s)
         page.stopSub(e);
         page.hideAll();
         page.clearForms();
+        if(page.editCV.textContent === '-  edit') { // If previously in edit form
+            page.updateViewBar(false, '', ''); // Clear current file view
+        }
     },
 
     cancel(e) {
@@ -474,6 +479,7 @@ const display = { // Display appropriate DOM object(s)
             let index = get.projectIndex(projectName);
             projects.splice(index);
             localStorage.setItem('projects', JSON.stringify(projects)); // Update local storage
+            form.rmDropProj(projectName);// Delete from dropdowns
             let file = document.getElementById('parent' + projectName); // Delete from sidebar
             file.remove();
             return;
@@ -517,6 +523,7 @@ const display = { // Display appropriate DOM object(s)
         editButton.setAttribute('id', 'edit' + listName);
         editButton.setAttribute('data-id', projectName);
         editButton.setAttribute('class', 'dots'); 
+        editButton.setAttribute('title', 'edit list'); 
         editButton.setAttribute('src', Dots);
         editButton.addEventListener('click', form.edit);
         const name = document.createElement('h2'); // Header
@@ -629,6 +636,7 @@ const display = { // Display appropriate DOM object(s)
         editButton.setAttribute('data-id', 'p');
         editButton.setAttribute('class', 'dots'); 
         editButton.setAttribute('src', Dots);
+        editButton.setAttribute('title', 'edit project');
         editButton.addEventListener('click', form.edit); 
         let list = document.createElement('ul');
         list.setAttribute('class', 'sideUl');
@@ -710,7 +718,8 @@ const addNew = {
         // Set priority default value & validate list Name
         let priority = get.dropdownValue(page.fields.priority) === '' ?  'normal' : get.dropdownValue(page.fields.priority); 
         if (!validate.name(listName, projectObj.lists, 'list', true)) return;
-        
+        dueDate = dueDate.length !== 8 ? '01/01/00': dueDate;
+
         listObj = new List (listName, dueDate, priority, items);// Construct new list
         projectObj.lists.push(listObj); // Add list to parent
         localStorage.setItem('projects', JSON.stringify(projects))// Update local storage
