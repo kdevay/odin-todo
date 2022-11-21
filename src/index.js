@@ -470,8 +470,8 @@ const display = { // Display appropriate DOM object(s)
     },
 
     delete(e){ // Deletes list/project from dom and memory
+        console.log('foo');
         page.stopSub(e);
-        page.hideAll(); // Reset to defaults
         page.clearForms();
         page.updateViewBar(false, '', ''); 
         if (e.target.getAttribute('data-type') === 'project'){
@@ -479,9 +479,11 @@ const display = { // Display appropriate DOM object(s)
             let index = get.projectIndex(projectName);
             projects.splice(index);
             localStorage.setItem('projects', JSON.stringify(projects)); // Update local storage
+            console.log('projectName: ', projectName);
             form.rmDropProj(projectName);// Delete from dropdowns
             let file = document.getElementById('parent' + projectName); // Delete from sidebar
             file.remove();
+            page.hideAll(); // Reset to defaults
             return;
         }
         let listName = e.target.getAttribute('data-name');
@@ -492,6 +494,7 @@ const display = { // Display appropriate DOM object(s)
         localStorage.setItem('projects', JSON.stringify(projects)); // Update local storage
         let projIndex = get.projectIndex(projectName); // delete list from sidebar
         let listFile = document.getElementById(projIndex + listName);
+        page.hideAll(); // Reset to defaults
         listFile.remove();
     },
 
