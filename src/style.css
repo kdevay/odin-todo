@@ -59,10 +59,9 @@ label {
 }
 .pform {
     display: none;
-    width: 90%;
     flex-direction: column;
     border-radius: 30px;
-    gap: 30px;
+    gap: 20px;
 }
 .dform { 
     display: none;
@@ -295,11 +294,10 @@ label {
     width: 100%;
     align-content: space-between;
 }
-.sideProjects {
-    width: 90%;
+.sideProjects{
+    width: fit-content;
     height: fit-content;
     margin: 5px 0px;
-    padding-left: 5px;
 }
 .sideProjects:hover {
     cursor: pointer;
