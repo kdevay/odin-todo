@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script defer src="bundle.js"></script> -->
+    <!-- <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="style.css"> -->
+    <title>To Do</title>
+<script defer src="bundle.js"></script></head>
+<body>
+    <div id="main">
+        <div id="modalShadow"></div>
+        <div id="modal"> 
+            <!-- new project -->
+            <form class="pform" id="newProjForm">
+                <h2 class="listTitle">Create New Project</h2>
+                <div>
+                    <label for="projName">Project Name: </label>
+                    <input type="text" id="projName">
+                    <p id="projNameError" class="error"></p>
+                </div>
+                <button class="fsubmit" type="submit" id="addProject">Add Project</button>
+            </form>
+            <!-- edit project -->
+            <form class="pform" id="editProjForm">
+                <h2 class="listTitle">Edit Project</h2>
+                <div>
+                    <label for="editProjName">Project Name: </label>
+                    <input type="text" id="editProjName">
+                    <p id="editProjNameError" class="error"></p>
+                </div>
+                <div class="buttonDiv">
+                    <button class="esubmit" type="submit" id="editProject">Edit Project</button>
+                    <button data-type="project"  class="edelete" id="deleteProject">Delete Project</button>
+                </div>
+            </form>
+            <!-- confirm deletion (?) -->
+            <form class="dform" id="confirmDelete">
+                <h2 class="listTitle">Are you sure?</h2>
+                <div>
+                    <p id="confirmationMessage"></p>
+                    <p>This action is permanent and irreversible.</p>
+                </div> 
+                <div class="buttonDiv">
+                    <button class="edelete" type="submit" id="deleteConfirmed">delete</button>
+                    <button class="ecancel" id="cancelDelete">cancel</button>
+                </div>
+                
+            </form>
+        </div>
+
+
+        <div id="top"> 
+            <div class="currentViewCont">
+                <h2 id="currentView"></h2>&nbsp;&nbsp;
+                <h2 id="editCV" style="font-style: italic;"></h2>
+            </div>
+            <div id="icon-cont"></div>
+            <div id="addButtons">
+                <button class="dispFormButton" id="displayListForm">+List</button>
+                <button class="dispFormButton" id="displayProjectForm">+Project</button>
+            </div>
+        </div>
+
+
+        <div id="sidebar"> 
+            <h1>To Do</h1>
+            <br>
+            <h2>Projects</h2>
+            <div id="files">
+                <!-- expanding file tree --> 
+            </div>
+        </div>
+
+
+        <div id="content">
+            <!-- new list form-->
+            <form class="form" id="newListForm">
+                <h2 class="listTitle">Create New List</h2>
+                <div class="dropsCont"> 
+                    <select class="fields" name="allProjects" id="allProjects">
+                        <option value="" disabled selected>Choose Project</option>
+                        <option value="New Project">New Project</option>
+                    </select>
+                    <input class="fields" type="text" id="lFormProjName" placeholder="Project Name">
+                    <select class="fields" name="priority" id="priority">
+                        <option value="" disabled selected>Priority</option>
+                        <option value="high">high</option> 
+                        <option value="normal">normal</option> 
+                        <option value="low">low</option>
+                    </select>
+                    <input class="fields" type="date" id="dueDate"  name="Due Date">
+                    <!-- <input class="fields" type="text" id="dueDate" placeholder="Due Date"> -->
+                </div>
+                <div class="dropsCont">
+                    <input class="fields" type="text" id="listName" placeholder="List Title">
+                    <div class="addRmCont">
+                        <button class="addRmItems" id="addItems"> + </button>
+                        <p class="addRmLabel">tasks</p>
+                        <button class="addRmItems" id="rmItems"> — </button>
+                    </div>
+                    <p id="listNameError" class="error"></p>
+                </div>
+                <ol id="formListItems">
+                    <li class="listItemParent" data-id="0"><input class="formItem" type="text" id="listItem0"></li>
+                </ol>
+                <button class="fsubmit" type="submit" id="addList">Add List</button>
+            </form>
+
+
+
+
+
+            <!-- edit list form -->
+            <form class="form" id="editListForm">
+                <h2 class="listTitle">Edit List</h2>
+                <div class="editTop">
+                    <div class="editLeft">
+                        <label for="editListName">List Name: </label>
+                        <input class="fields" type="text" id="editListName" placeholder="List Title">
+                        <label for="editDueDate">Deadline: </label>
+                        <input class="fields" type="date" id="editDueDate"  name="Due Date">
+                        <!-- d<input class="fields" type="text" id="editDueDate" placeholder="Due Date"> -->
+                    </div>
+                    <div class="editRight">
+                        <label id="editFormProjNameLabel" for="editFormProjName">Project: </label>
+                        <input class="fields" type="text" id="editFormProjName" placeholder="Project Name">
+                        <select class="sfields" name="editAllProjects" id="editAllProjects">
+                            <option value="" disabled selected>Choose Project</option>
+                            <option value="New Project">New Project</option>
+                        </select>
+                        <label for="editPriority">Priority: </label>
+                        <select class="sfields" name="editPriority" id="editPriority">
+                            <option value="" disabled selected>Priority</option>
+                            <option value="high">high</option> 
+                            <option value="normal">normal</option> 
+                            <option value="low">low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="dropsCont">
+                    <div class="addRmCont">
+                        <button class="addRmItems" id="editAddItems"> + </button>
+                        <p class="addRmLabel">tasks</p>
+                        <button class="addRmItems" id="editRmItems"> — </button>
+                    </div>
+                    <p id="editListNameError" class="error"></p>
+                </div>
+                <ol id="editFormListItems">
+                    <li id="edit0" class="editListItemParent" data-id="0"><input class="editFormItem" type="text" id="editlistItem0"></li>
+                </ol>
+                <div class="buttonDiv">
+                    <button class="esubmit" type="submit" id="editList">Edit List</button>
+                    <button class="ecancel" id="cancelEdit">Cancel</button>
+                    <button data-type="list" class="edelete" id="deleteList">Delete List</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
